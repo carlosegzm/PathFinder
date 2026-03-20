@@ -1,6 +1,8 @@
 package com.ai.PathFinder.dtos;
 
+import com.ai.PathFinder.entities.Capital;
+
 public record PathBetweenCapitalsDto(Long id,
-                                     String origin,
-                                     String destination,
+                                     Capital origin,
+                                     Capital destination,
                                      Integer distance) { }

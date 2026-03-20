@@ -12,8 +12,14 @@ public class CommonRoute {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String origin;
-    private String destination;
+    @ManyToOne
+    @JoinColumn(name = "origin_id")
+    private Capital origin;
+
+    @ManyToOne
+    @JoinColumn(name = "destination_id")
+    private Capital destination;
+    
     private Integer load;
 
 }

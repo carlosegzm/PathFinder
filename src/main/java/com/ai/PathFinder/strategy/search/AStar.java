@@ -1,4 +1,4 @@
-package com.ai.PathFinder.algorithms.a_star;
+package com.ai.PathFinder.strategy.search;
 
 import java.util.List;
 

@@ -1,7 +1,6 @@
 package com.ai.PathFinder.controllers;
 
 import com.ai.PathFinder.dtos.PathBetweenCapitalsDto;
-import com.ai.PathFinder.mappers.PathBetweenCapitalsMapper;
 import com.ai.PathFinder.services.PathBetweenCapitalsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,6 @@ import java.util.List;
 public class PathBetweenCapitalsController {
 
     private final PathBetweenCapitalsService service;
-    private final PathBetweenCapitalsMapper mapper;
 
     @GetMapping
     public ResponseEntity<List<PathBetweenCapitalsDto>> listAllPathsBetweenCapitals(){

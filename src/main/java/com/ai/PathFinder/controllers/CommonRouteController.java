@@ -1,7 +1,6 @@
 package com.ai.PathFinder.controllers;
 
 import com.ai.PathFinder.dtos.CommonRouteDto;
-import com.ai.PathFinder.mappers.CommonRouteMapper;
 import com.ai.PathFinder.services.CommonRouteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,6 @@ import java.util.List;
 public class CommonRouteController {
 
     private final CommonRouteService service;
-    private final CommonRouteMapper mapper;
 
     @GetMapping
     public ResponseEntity<List<CommonRouteDto>> listAllCommonRoutes(){

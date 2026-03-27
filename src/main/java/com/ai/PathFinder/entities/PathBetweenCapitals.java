@@ -23,4 +23,5 @@ public class PathBetweenCapitals {
     private Integer distance;
     private boolean hasRailway;
 
+    public boolean hasRailway(){ return hasRailway; }
 }

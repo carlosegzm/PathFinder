@@ -1,9 +1,11 @@
 package com.ai.PathFinder.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "common_routes")
 public class CommonRoute {
@@ -13,13 +15,13 @@ public class CommonRoute {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "origin_id")
+    @JoinColumn(name = "origin_id", nullable = false)
     private Capital origin;
 
     @ManyToOne
-    @JoinColumn(name = "destination_id")
+    @JoinColumn(name = "destination_id", nullable = false)
     private Capital destination;
-    
-    private Integer load;
 
+    @Column(name = "load", nullable = false)
+    private Integer load;
 }

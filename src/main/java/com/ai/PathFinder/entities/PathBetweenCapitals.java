@@ -1,9 +1,11 @@
 package com.ai.PathFinder.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "path_between_capitals")
 public class PathBetweenCapitals {
@@ -13,15 +15,16 @@ public class PathBetweenCapitals {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "origin_id")
+    @JoinColumn(name = "origin_id", nullable = false)
     private Capital origin;
 
     @ManyToOne
-    @JoinColumn(name = "destination_id")
+    @JoinColumn(name = "destination_id", nullable = false)
     private Capital destination;
 
+    @Column(name = "distance", nullable = false)
     private Integer distance;
-    private boolean hasRailway;
 
-    public boolean hasRailway(){ return hasRailway; }
+    @Column(name = "has_railway")
+    private Boolean hasRailway = false;
 }

@@ -14,6 +14,6 @@ public class Adapter {
                 fromCapital(p.getOrigin()),
                 fromCapital(p.getDestination()),
                 p.getDistance(),
-                p.hasRailway());
+                p.getHasRailway());
     }
 }

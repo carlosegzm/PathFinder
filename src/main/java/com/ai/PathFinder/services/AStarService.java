@@ -24,9 +24,6 @@ import java.util.Set;
  *   - road:    item b — só rodovias, R$ 5,00/km
  *   - kruskal: item d — malha do Kruskal salva no banco (has_railway = true)
  *   - genetic: item f — malha definida pelo Algoritmo Genético
- *
- * Este serviço não faz nenhuma busca — apenas configura o grafo no AStar
- * e converte o resultado interno (AStarResult) para o DTO da API (AStarResponseDto).
  */
 @Service
 @RequiredArgsConstructor
@@ -34,23 +31,20 @@ public class AStarService {
 
     private final AStar aStar;
 
-    // -------------------------------------------------------------------------
     // Item b — apenas rodovias
-    // -------------------------------------------------------------------------
 
     /**
      * Rota mais barata usando somente rodovias.
      * O grafo é reconstruído sem nenhuma ferrovia antes da busca.
      */
     public AStarResponseDto findRoadOnlyRoute(AStarRequestDto request) {
-        aStar.rebuildGraphWithRailways(Set.of());
+        // O(1) — apenas troca o ponteiro do grafo ativo, sem queries e sem alocações
+        aStar.useRoadOnlyGraph();
         AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination());
         return toResponseDto(result, "road-only");
     }
 
-    // -------------------------------------------------------------------------
     // Item d — malha do Kruskal (has_railway salvo no banco após executar o Kruskal)
-    // -------------------------------------------------------------------------
 
     /**
      * Rota mais barata com a malha ferroviária do Kruskal.
@@ -61,30 +55,28 @@ public class AStarService {
      * IMPORTANTE: chame POST /api/kruskal/execute antes de usar este endpoint.
      */
     public AStarResponseDto findKruskalRoute(AStarRequestDto request) {
-        aStar.initGraph(); // recarrega has_railway do banco
+        // Faz UMA query SQL para recarregar has_railway atualizado pelo Kruskal
+        aStar.reloadFromDatabase();
         AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination());
         return toResponseDto(result, "kruskal-railways");
     }
 
-    // -------------------------------------------------------------------------
     // Item f — malha do Algoritmo Genético
-    // -------------------------------------------------------------------------
 
     /**
      * Rota mais barata com a malha ferroviária definida pelo Algoritmo Genético.
+     * buildGraphForRailways() opera 100% em memória
      *
      * @param request      origem e destino
      * @param railwayEdges arestas ferroviárias ativas no cromossomo (ex: {"SP-RJ","RJ-SP"})
      */
     public AStarResponseDto findGeneticRoute(AStarRequestDto request, Set<String> railwayEdges) {
-        aStar.rebuildGraphWithRailways(railwayEdges);
+        aStar.buildGraphForRailways(railwayEdges);
         AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination());
         return toResponseDto(result, "genetic-railways");
     }
 
-    // -------------------------------------------------------------------------
     // Conversão AStarResult → AStarResponseDto
-    // -------------------------------------------------------------------------
 
     private AStarResponseDto toResponseDto(AStarResult result, String mode) {
         if (!result.found) {
@@ -146,7 +138,7 @@ public class AStarService {
         );
     }
 
-    /** Arredonda para 2 casas decimais. */
+    // Arredonda para 2 casas decimais. 
     private BigDecimal round(double value) {
         return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP);
     }

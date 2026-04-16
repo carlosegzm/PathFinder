@@ -19,149 +19,214 @@ import java.util.*;
  * Custos:
  *   - Rodovia:  R$ 5,00 por km
  *   - Ferrovia: R$ 1,20 por km
- *   - Transbordo (troca de caminhão para trem ou vice-versa): + R$ 1.000,00
+ *   - Transbordo (troca de modal): + R$ 1.000,00
  *
- * O grafo é carregado uma única vez na memória ao iniciar a aplicação.
- * Durante a busca, nenhuma consulta ao banco é feita.
+ * Otimização para o AG: Boga's dream 😁
+ *   O banco de dados é lido uma vez no startup (@PostConstruct).
+ *   Os dados brutos ficam em "roadGraph" (só rodovias) e "rawPaths" (lista de arestas base).
+ *   Quando o AG chama buildGraphForRailways(), o grafo é remontado APENAS EM MEMÓRIA,
+ *   sem nenhuma query SQL — operação de microssegundos em vez de milissegundos.
  */
 @Service
 @RequiredArgsConstructor
 public class AStar {
 
-    // Custos por km segundo o modal
     private static final double ROAD_COST_PER_KM    = 5.00;
     private static final double RAILWAY_COST_PER_KM = 1.20;
+    private static final double TRANSFER_PENALTY    = 1_000.00;
+    private static final double EARTH_RADIUS_KM     = 6_371.0;
 
-    // Penalidade ao trocar de modal (caminhão → trem ou trem → caminhão)
-    private static final double TRANSFER_PENALTY = 1_000.00;
-
-    // Raio da Terra em km — usado na fórmula de Haversine
-    private static final double EARTH_RADIUS_KM = 6_371.0;
-
-    // Repositórios — usados SOMENTE para carregar o grafo, nunca dentro da busca
+    // Repositórios — consultados SOMENTE no @PostConstruct, nunca depois
     private final CapitalRepository capitalRepository;
     private final PathBetweenCapitalsRepository pathRepository;
 
-    // Grafo em memória: sigla da capital → lista de caminhos de saída
-    private Map<String, List<Edge>> graph;
+    // Dados base — carregados uma vez, nunca mais alterados
 
-    // Mapa de capitais para acessar latitude/longitude rapidamente
+    /** Mapa de capitais: sigla → Capital (latitude, longitude, nome) */
     private Map<String, Capital> capitalMap;
 
-    // Carregamento do grafo (executado UMA VEZ ao iniciar a aplicação)
+    /**
+     * Lista compacta de todas as arestas do banco, sem nenhum objeto JPA.
+     * Usada pelo AG para remontar o grafo em memória sem tocar o banco.
+     * Formato: [origemId, destinoId, distanciaKm]
+     */
+    private List<int[]> rawPaths;           // int[0]=hash origem, int[1]=hash destino, int[2]=km
+    private List<String[]> rawPathIds;      // String[0]=origemId, String[1]=destinoId
 
     /**
-     * Lê todas as capitais e caminhos do banco e monta o grafo em memória.
-     * A partir daqui, nenhuma query SQL é feita durante o A*.
+     * Grafo base com apenas rodovias (sem nenhuma ferrovia).
+     * Imutável após o startup — nunca sobrescrito.
+     * O AG parte deste grafo e adiciona ferrovias por cima.
+     */
+    private Map<String, List<Edge>> roadOnlyGraph;
+
+    // Grafo ativo — o que o findRoute() usa na busca
+
+    /** Grafo atual em uso: pode ser road-only, kruskal ou cromossomo do AG */
+    private Map<String, List<Edge>> graph;
+
+    // Startup — lê o banco uma vez
+
+    /**
+     * Executado uma vez ao subir a aplicação.
+     * Carrega tudo do banco, monta o grafo base de rodovias e os dados raw para o AG.
+     * Após este método, ZERO queries SQL são feitas pelo A*.
      */
     @PostConstruct
     public void initGraph() {
-        List<Capital> capitals            = capitalRepository.findAll();
-        List<PathBetweenCapitals> paths   = pathRepository.findAll();
-
-        // Monta o mapa de capitais por sigla
-        capitalMap = new HashMap<>();
-        for (Capital c : capitals) {
-            capitalMap.put(c.getId(), c);
-        }
-
-        // Inicia o grafo com listas vazias para cada capital
-        graph = new HashMap<>();
-        for (Capital c : capitals) {
-            graph.put(c.getId(), new ArrayList<>());
-        }
-
-        // Adiciona as arestas: sempre rodovia; ferrovia só se has_railway = true
-        for (PathBetweenCapitals path : paths) {
-            String  from     = path.getOrigin().getId();
-            String  to       = path.getDestination().getId();
-            int     distance = path.getDistance();
-            boolean railway  = Boolean.TRUE.equals(path.getHasRailway());
-
-            graph.get(from).add(new Edge(to, distance, TransportMode.ROAD));
-
-            if (railway) {
-                graph.get(from).add(new Edge(to, distance, TransportMode.RAILWAY));
-            }
-        }
-    }
-
-    /**
-     * Reconstrói o grafo com um conjunto de ferrovias específico.
-     * Usado pelo Algoritmo Genético para testar diferentes combinações de ferrovias
-     * sem precisar alterar o banco de dados.
-     *
-     * @param railwayEdges conjunto de chaves "SIGLA_ORIGEM-SIGLA_DESTINO" com ferrovia ativa
-     *                     Exemplo: {"SP-RJ", "RJ-SP", "RJ-MG", "MG-RJ"}
-     */
-    public void rebuildGraphWithRailways(Set<String> railwayEdges) {
         List<Capital> capitals          = capitalRepository.findAll();
         List<PathBetweenCapitals> paths = pathRepository.findAll();
 
-        capitalMap = new HashMap<>();
+        // 1. Mapa de capitais por sigla
+        capitalMap = new HashMap<>(capitals.size() * 2);
         for (Capital c : capitals) {
             capitalMap.put(c.getId(), c);
         }
 
-        graph = new HashMap<>();
-        for (Capital c : capitals) {
-            graph.put(c.getId(), new ArrayList<>());
+        // 2. Dados raw para o AG (sem objetos JPA — só Strings e ints)
+        rawPaths   = new ArrayList<>(paths.size());
+        rawPathIds = new ArrayList<>(paths.size());
+        for (PathBetweenCapitals p : paths) {
+            rawPathIds.add(new String[]{ p.getOrigin().getId(), p.getDestination().getId() });
+            rawPaths.add(new int[]{ p.getDistance() });
         }
 
-        for (PathBetweenCapitals path : paths) {
-            String from    = path.getOrigin().getId();
-            String to      = path.getDestination().getId();
-            int    km      = path.getDistance();
-            String edgeKey = from + "-" + to;
+        // 3. Grafo base: só rodovias (has_railway ignorado aqui)
+        roadOnlyGraph = new HashMap<>(capitals.size() * 2);
+        for (Capital c : capitals) {
+            roadOnlyGraph.put(c.getId(), new ArrayList<>());
+        }
+        for (int i = 0; i < rawPathIds.size(); i++) {
+            String from = rawPathIds.get(i)[0];
+            String to   = rawPathIds.get(i)[1];
+            int    km   = rawPaths.get(i)[0];
+            roadOnlyGraph.get(from).add(new Edge(to, km, TransportMode.ROAD));
+        }
 
-            graph.get(from).add(new Edge(to, km, TransportMode.ROAD));
+        // 4. Grafo ativo começa como road-only
+        graph = roadOnlyGraph;
+    }
 
-            if (railwayEdges.contains(edgeKey)) {
-                graph.get(from).add(new Edge(to, km, TransportMode.RAILWAY));
+    // Modos de operação — cada um configura o "graph" ativo
+
+    /**
+     * Item b — ativa o modo somente rodovias.
+     * Operação O(1): apenas aponta o graph para o roadOnlyGraph já existente.
+     */
+    public void useRoadOnlyGraph() {
+        graph = roadOnlyGraph;
+    }
+
+    /**
+     * Item d — recarrega has_railway do banco e reconstrói o grafo.
+     * Faz query SQL — deve ser chamado apenas uma vez após o Kruskal executar.
+     * Depois disso, o grafo fica em memória e findRoute() não faz mais queries.
+     */
+    public void reloadFromDatabase() {
+        List<PathBetweenCapitals> paths = pathRepository.findAll();
+
+        Map<String, List<Edge>> newGraph = new HashMap<>(capitalMap.size() * 2);
+        for (String id : capitalMap.keySet()) {
+            newGraph.put(id, new ArrayList<>());
+        }
+
+        for (PathBetweenCapitals p : paths) {
+            String  from    = p.getOrigin().getId();
+            String  to      = p.getDestination().getId();
+            int     km      = p.getDistance();
+            boolean railway = Boolean.TRUE.equals(p.getHasRailway());
+
+            newGraph.get(from).add(new Edge(to, km, TransportMode.ROAD));
+            if (railway) {
+                newGraph.get(from).add(new Edge(to, km, TransportMode.RAILWAY));
             }
         }
+
+        graph = newGraph;
+    }
+
+    /**
+     * Item f — constrói o grafo para um cromossomo do Algoritmo Genético.
+     *
+     * OTIMIZADO: usa os dados raw já em memória (rawPathIds + rawPaths).
+     * NÃO faz nenhuma query SQL. Cria um novo Map em memória com rodovias +
+     * as ferrovias do cromossomo. Tempo: O(arestas) ~ microssegundos.
+     *
+     * Chamado pelo AG uma vez por cromossomo por geração.
+     * Com 100 indivíduos × 200 gerações = 20.000 chamadas — todas em memória.
+     *
+     * @param railwayEdges conjunto "ORIGEM-DESTINO" com ferrovias ativas no cromossomo
+     *                     Exemplo: {"SP-RJ", "RJ-SP", "MG-RJ", "RJ-MG"}
+     */
+    public void buildGraphForRailways(Set<String> railwayEdges) {
+        // Aloca novo grafo em memória — sem tocar o banco
+        Map<String, List<Edge>> newGraph = new HashMap<>(capitalMap.size() * 2);
+        for (String id : capitalMap.keySet()) {
+            newGraph.put(id, new ArrayList<>());
+        }
+
+        // Percorre os dados raw (já em memória desde o startup)
+        for (int i = 0; i < rawPathIds.size(); i++) {
+            String from    = rawPathIds.get(i)[0];
+            String to      = rawPathIds.get(i)[1];
+            int    km      = rawPaths.get(i)[0];
+            String edgeKey = from + "-" + to;
+
+            // Rodovia sempre presente
+            newGraph.get(from).add(new Edge(to, km, TransportMode.ROAD));
+
+            // Ferrovia somente se o cromossomo incluiu esta aresta
+            if (railwayEdges.contains(edgeKey)) {
+                newGraph.get(from).add(new Edge(to, km, TransportMode.RAILWAY));
+            }
+        }
+
+        graph = newGraph;
+    }
+
+    /**
+     * Atalho mantido para compatibilidade com código existente.
+     * Internamente chama buildGraphForRailways().
+     */
+    public void rebuildGraphWithRailways(Set<String> railwayEdges) {
+        buildGraphForRailways(railwayEdges);
     }
 
     // Busca A*
 
     /**
      * Encontra a rota de menor custo financeiro entre duas capitais.
+     * Opera sobre o grafo ativo (graph) sem nenhuma query SQL.
      *
      * @param originId      sigla da capital de origem (ex: "SP")
      * @param destinationId sigla da capital de destino (ex: "RJ")
-     * @return AStarResult com o custo e a rota, ou AStarResult.empty() se não houver caminho
+     * @return AStarResult com custo e rota, ou AStarResult.empty() se não houver caminho
      */
     public AStarResult findRoute(String originId, String destinationId) {
 
-        // Capitais inexistentes no grafo
         if (!graph.containsKey(originId) || !graph.containsKey(destinationId)) {
             return AStarResult.empty();
         }
 
-        // Origem igual ao destino: custo zero
         if (originId.equals(destinationId)) {
             return new AStarResult(0.0, List.of(), List.of(capitalMap.get(originId)));
         }
 
         Capital destination = capitalMap.get(destinationId);
 
-        // Fila de prioridade: sempre processa o estado com menor f(n) = g(n) + h(n)
+        // Fila de prioridade: processa sempre o estado com menor f(n) = g(n) + h(n)
         PriorityQueue<SearchState> openSet = new PriorityQueue<>(
                 Comparator.comparingDouble(s -> s.gCost + s.hCost)
         );
 
-        // Registra o menor custo já encontrado para cada par (capital, modal de chegada)
-        // A chave inclui o modal porque chegar de trem tem implicação diferente de chegar de caminhão
+        // Menor custo já registrado por estado (capital + modal de chegada)
         Map<String, Double> bestCost = new HashMap<>();
 
-        // Estado inicial: estamos na origem, sem modal anterior (NONE)
         SearchState initial = new SearchState(
-                originId,
-                null,               // estado anterior
-                null,               // aresta usada
-                0.0,                // g(n) = 0
+                originId, null, null,
+                0.0,
                 haversineFinancial(capitalMap.get(originId), destination),
-                TransportMode.NONE  // ainda não usamos nenhum modal
+                TransportMode.NONE
         );
 
         openSet.add(initial);
@@ -170,27 +235,22 @@ public class AStar {
         while (!openSet.isEmpty()) {
             SearchState current = openSet.poll();
 
-            // Chegamos ao destino!
             if (current.capitalId.equals(destinationId)) {
                 return buildResult(current);
             }
 
-            // Se já encontramos um caminho melhor para este estado, ignoramos este
             String currentKey = stateKey(current.capitalId, current.arrivalMode);
             Double recorded   = bestCost.get(currentKey);
             if (recorded != null && current.gCost > recorded + 1e-9) {
                 continue;
             }
 
-            // Expande os vizinhos
             for (Edge edge : graph.getOrDefault(current.capitalId, Collections.emptyList())) {
 
-                // Custo desta aresta segundo o modal
                 double edgeCost = (edge.mode == TransportMode.RAILWAY)
                         ? edge.distanceKm * RAILWAY_COST_PER_KM
                         : edge.distanceKm * ROAD_COST_PER_KM;
 
-                // Adiciona penalidade se houve troca de modal
                 double transferCost = 0.0;
                 if (current.arrivalMode != TransportMode.NONE
                         && current.arrivalMode != edge.mode) {
@@ -202,7 +262,6 @@ public class AStar {
                 String neighborKey = stateKey(edge.targetId, edge.mode);
                 Double bestG       = bestCost.get(neighborKey);
 
-                // Só adiciona à fila se encontramos um caminho melhor
                 if (bestG == null || newG < bestG - 1e-9) {
                     bestCost.put(neighborKey, newG);
 
@@ -210,12 +269,7 @@ public class AStar {
                     double  h        = haversineFinancial(neighbor, destination);
 
                     openSet.add(new SearchState(
-                            edge.targetId,
-                            current,
-                            edge,
-                            newG,
-                            h,
-                            edge.mode
+                            edge.targetId, current, edge, newG, h, edge.mode
                     ));
                 }
             }
@@ -224,24 +278,16 @@ public class AStar {
         return AStarResult.empty();
     }
 
-    // Heurística: Haversine × menor custo possível (R$ 1,20/km)
+    // Heurística admissível — Haversine × menor custo possível
 
-    /**
-     * Calcula a estimativa do custo restante até o destino.
-     * Usa a distância em linha reta (Haversine) × R$ 1,20 (menor custo do sistema).
-     * Como nunca superestima, garante que o A* encontra sempre a solução ótima.
-     */
     private double haversineFinancial(Capital from, Capital to) {
         double km = haversineKm(
-                from.getLatitude().doubleValue(),
-                from.getLongitude().doubleValue(),
-                to.getLatitude().doubleValue(),
-                to.getLongitude().doubleValue()
+                from.getLatitude().doubleValue(),  from.getLongitude().doubleValue(),
+                to.getLatitude().doubleValue(),    to.getLongitude().doubleValue()
         );
         return km * RAILWAY_COST_PER_KM;
     }
 
-    /** Distância em km entre dois pontos geográficos usando a fórmula de Haversine. */
     private double haversineKm(double lat1, double lon1, double lat2, double lon2) {
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
@@ -251,18 +297,12 @@ public class AStar {
         return EARTH_RADIUS_KM * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    // Métodos auxiliares
+    // Helpers internos
 
-    /**
-     * Chave composta para o mapa de visitados.
-     * "SP|ROAD" e "SP|RAILWAY" são estados DIFERENTES:
-     * chegar de caminhão vs chegar de trem implica custos distintos no próximo passo.
-     */
     private static String stateKey(String capitalId, TransportMode mode) {
         return capitalId + "|" + mode.name();
     }
 
-    /** Reconstrói a rota completa navegando de trás para frente pelos estados. */
     private AStarResult buildResult(SearchState finalState) {
         LinkedList<Edge>    edges = new LinkedList<>();
         LinkedList<Capital> route = new LinkedList<>();
@@ -281,22 +321,16 @@ public class AStar {
 
     // Classes internas
 
-    /** Modal de transporte. NONE é usado apenas no estado inicial (sem modal anterior). */
     public enum TransportMode {
         ROAD,    // Caminhão — R$ 5,00/km
         RAILWAY, // Trem     — R$ 1,20/km
-        NONE     // Sentinela: estado inicial, sem modal anterior
+        NONE     // Sentinela: estado inicial
     }
 
-    /**
-     * Representa um trecho do grafo (uma aresta).
-     * Entre duas capitais vizinhas pode existir até 2 arestas:
-     * uma de rodovia e uma de ferrovia (quando has_railway = true).
-     */
     public static class Edge {
-        public final String        targetId;    // sigla da capital de destino
-        public final int           distanceKm;  // distância em km
-        public final TransportMode mode;        // tipo de transporte
+        public final String        targetId;
+        public final int           distanceKm;
+        public final TransportMode mode;
 
         public Edge(String targetId, int distanceKm, TransportMode mode) {
             this.targetId   = targetId;
@@ -305,20 +339,13 @@ public class AStar {
         }
     }
 
-    /**
-     * Estado de busca armazenado na fila de prioridade.
-     *
-     * Guardamos o modal de chegada (arrivalMode) porque precisamos saber
-     * se o próximo trecho vai gerar penalidade de transbordo.
-     * Sem isso, o algoritmo calcularia os custos de forma incorreta.
-     */
     public static class SearchState {
-        public final String        capitalId;   // onde estamos agora
-        public final SearchState   previous;    // de onde viemos (para reconstruir a rota)
-        public final Edge          edgeUsed;    // aresta que usamos para chegar aqui
-        public final double        gCost;       // custo acumulado real em R$
-        public final double        hCost;       // estimativa do custo restante em R$
-        public final TransportMode arrivalMode; // como chegamos aqui (ROAD, RAILWAY ou NONE)
+        public final String        capitalId;
+        public final SearchState   previous;
+        public final Edge          edgeUsed;
+        public final double        gCost;
+        public final double        hCost;
+        public final TransportMode arrivalMode;
 
         public SearchState(String capitalId, SearchState previous, Edge edgeUsed,
                            double gCost, double hCost, TransportMode arrivalMode) {
@@ -331,17 +358,12 @@ public class AStar {
         }
     }
 
-    /**
-     * Resultado final do A*.
-     * Contém o custo total em R$, a lista de trechos usados e a lista de capitais da rota.
-     */
     public static class AStarResult {
-        public final double        totalCostBrl; // custo total da rota em R$
-        public final List<Edge>    edges;         // trechos percorridos (em ordem)
-        public final List<Capital> route;         // capitais visitadas (em ordem)
-        public final boolean       found;         // true se existe rota
+        public final double        totalCostBrl;
+        public final List<Edge>    edges;
+        public final List<Capital> route;
+        public final boolean       found;
 
-        /** Construtor para quando a rota foi encontrada. */
         public AStarResult(double totalCostBrl, List<Edge> edges, List<Capital> route) {
             this.totalCostBrl = totalCostBrl;
             this.edges        = edges;
@@ -349,7 +371,6 @@ public class AStar {
             this.found        = true;
         }
 
-        /** Construtor privado para resultado vazio. */
         private AStarResult() {
             this.totalCostBrl = 0.0;
             this.edges        = Collections.emptyList();
@@ -357,7 +378,6 @@ public class AStar {
             this.found        = false;
         }
 
-        /** Use este método quando não houver rota disponível. */
         public static AStarResult empty() {
             return new AStarResult();
         }

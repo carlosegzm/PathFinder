@@ -38,9 +38,8 @@ public class AStarService {
      * O grafo é reconstruído sem nenhuma ferrovia antes da busca.
      */
     public AStarResponseDto findRoadOnlyRoute(AStarRequestDto request) {
-        // O(1) — apenas troca o ponteiro do grafo ativo, sem queries e sem alocações
-        aStar.useRoadOnlyGraph();
-        AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination());
+        aStar.rebuildGraphWithRailways(Set.of());
+        AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination(), null);
         return toResponseDto(result, "road-only");
     }
 
@@ -55,9 +54,8 @@ public class AStarService {
      * IMPORTANTE: chame POST /api/kruskal/execute antes de usar este endpoint.
      */
     public AStarResponseDto findKruskalRoute(AStarRequestDto request) {
-        // Faz UMA query SQL para recarregar has_railway atualizado pelo Kruskal
-        aStar.reloadFromDatabase();
-        AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination());
+        aStar.initGraph(); // recarrega has_railway do banco
+        AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination(), null);
         return toResponseDto(result, "kruskal-railways");
     }
 
@@ -71,8 +69,8 @@ public class AStarService {
      * @param railwayEdges arestas ferroviárias ativas no cromossomo (ex: {"SP-RJ","RJ-SP"})
      */
     public AStarResponseDto findGeneticRoute(AStarRequestDto request, Set<String> railwayEdges) {
-        aStar.buildGraphForRailways(railwayEdges);
-        AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination());
+        aStar.rebuildGraphWithRailways(railwayEdges);
+        AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination(), null);
         return toResponseDto(result, "genetic-railways");
     }
 

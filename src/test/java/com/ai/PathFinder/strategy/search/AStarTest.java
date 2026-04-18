@@ -41,7 +41,7 @@ class AStarTest {
     @Test
     @DisplayName("SP → RJ direto: 435km × R$5,00 = R$2.175,00")
     void road_SP_RJ() {
-        AStarResult r = aStar.findRoute("SP", "RJ");
+        AStarResult r = aStar.findRoute("SP", "RJ", null);
 
         assertTrue(r.found);
         assertEquals("SP", r.route.get(0).getId());
@@ -56,7 +56,7 @@ class AStarTest {
     @Test
     @DisplayName("DF → GO direto: 207km × R$5,00 = R$1.035,00")
     void road_DF_GO() {
-        AStarResult r = aStar.findRoute("DF", "GO");
+        AStarResult r = aStar.findRoute("DF", "GO", null);
         assertTrue(r.found);
         assertEquals(1035.00, r.totalCostBrl, 0.01);
     }
@@ -64,7 +64,7 @@ class AStarTest {
     @Test
     @DisplayName("PB → RN direto: 181km × R$5,00 = R$905,00")
     void road_PB_RN() {
-        AStarResult r = aStar.findRoute("PB", "RN");
+        AStarResult r = aStar.findRoute("PB", "RN", null);
         assertTrue(r.found);
         assertEquals(905.00, r.totalCostBrl, 0.01);
     }
@@ -72,7 +72,7 @@ class AStarTest {
     @Test
     @DisplayName("AC → RO direto: 509km × R$5,00 = R$2.545,00")
     void road_AC_RO() {
-        AStarResult r = aStar.findRoute("AC", "RO");
+        AStarResult r = aStar.findRoute("AC", "RO", null);
         assertTrue(r.found);
         assertEquals(2545.00, r.totalCostBrl, 0.01);
     }
@@ -80,7 +80,7 @@ class AStarTest {
     @Test
     @DisplayName("PR → SC direto: 307km × R$5,00 = R$1.535,00")
     void road_PR_SC() {
-        AStarResult r = aStar.findRoute("PR", "SC");
+        AStarResult r = aStar.findRoute("PR", "SC", null);
         assertTrue(r.found);
         assertEquals(1535.00, r.totalCostBrl, 0.01);
     }
@@ -88,7 +88,7 @@ class AStarTest {
     @Test
     @DisplayName("AL → PE direto: 256km × R$5,00 = R$1.280,00")
     void road_AL_PE() {
-        AStarResult r = aStar.findRoute("AL", "PE");
+        AStarResult r = aStar.findRoute("AL", "PE", null);
         assertTrue(r.found);
         assertEquals(1280.00, r.totalCostBrl, 0.01);
     }
@@ -96,7 +96,7 @@ class AStarTest {
     @Test
     @DisplayName("MS → PR direto: 362km × R$5,00 = R$1.810,00")
     void road_MS_PR() {
-        AStarResult r = aStar.findRoute("MS", "PR");
+        AStarResult r = aStar.findRoute("MS", "PR", null);
         assertTrue(r.found);
         assertEquals(1810.00, r.totalCostBrl, 0.01);
     }
@@ -104,7 +104,7 @@ class AStarTest {
     @Test
     @DisplayName("SP → AM multiestado: rota encontrada com custo razoável")
     void road_SP_AM() {
-        AStarResult r = aStar.findRoute("SP", "AM");
+        AStarResult r = aStar.findRoute("SP", "AM", null);
         assertTrue(r.found);
         assertEquals("SP", r.route.get(0).getId());
         assertEquals("AM", r.route.get(r.route.size() - 1).getId());
@@ -118,7 +118,7 @@ class AStarTest {
     @DisplayName("SP → RJ com ferrovia: 435km × R$1,20 = R$522,00")
     void railway_SP_RJ() {
         aStar.rebuildGraphWithRailways(Set.of("SP-RJ", "RJ-SP"));
-        AStarResult r = aStar.findRoute("SP", "RJ");
+        AStarResult r = aStar.findRoute("SP", "RJ", null);
 
         assertTrue(r.found);
         assertEquals(1, r.edges.size());
@@ -130,7 +130,7 @@ class AStarTest {
     @DisplayName("DF → GO com ferrovia: 207km × R$1,20 = R$248,40")
     void railway_DF_GO() {
         aStar.rebuildGraphWithRailways(Set.of("DF-GO", "GO-DF"));
-        AStarResult r = aStar.findRoute("DF", "GO");
+        AStarResult r = aStar.findRoute("DF", "GO", null);
 
         assertTrue(r.found);
         assertEquals(TransportMode.RAILWAY, r.edges.get(0).mode);
@@ -141,7 +141,7 @@ class AStarTest {
     @DisplayName("SC → RS com ferrovia: 463km × R$1,20 = R$555,60")
     void railway_SC_RS() {
         aStar.rebuildGraphWithRailways(Set.of("SC-RS", "RS-SC"));
-        AStarResult r = aStar.findRoute("SC", "RS");
+        AStarResult r = aStar.findRoute("SC", "RS", null);
 
         assertTrue(r.found);
         assertEquals(TransportMode.RAILWAY, r.edges.get(0).mode);
@@ -153,7 +153,7 @@ class AStarTest {
     void railway_SP_MG_via_RJ_continuous() {
         // SP→RJ (ferrovia) + RJ→MG (ferrovia): sem transbordo, tudo trem
         aStar.rebuildGraphWithRailways(Set.of("SP-RJ", "RJ-SP", "RJ-MG", "MG-RJ"));
-        AStarResult r = aStar.findRoute("SP", "MG");
+        AStarResult r = aStar.findRoute("SP", "MG", null);
 
         assertTrue(r.found);
 
@@ -174,7 +174,7 @@ class AStarTest {
         // Via RJ: 435×1,20 + R$1.000 + 441×5,00 = 522 + 1000 + 2205 = R$3.727,00
         // Direto SP→MG: 583 × R$5,00 = R$2.915,00
         aStar.rebuildGraphWithRailways(Set.of("SP-RJ", "RJ-SP"));
-        AStarResult r = aStar.findRoute("SP", "MG");
+        AStarResult r = aStar.findRoute("SP", "MG", null);
 
         assertTrue(r.found);
         assertTrue(r.totalCostBrl <= 2915.00 + 0.01,
@@ -188,7 +188,7 @@ class AStarTest {
         // Custo: 207×1,20 + 1000 + 739×5 = 248,40 + 1000 + 3695 = R$4.943,40
         // GO→MG direto rodovia: 891×5 = R$4.455,00
         aStar.rebuildGraphWithRailways(Set.of("GO-DF", "DF-GO"));
-        AStarResult r = aStar.findRoute("GO", "MG");
+        AStarResult r = aStar.findRoute("GO", "MG", null);
 
         assertTrue(r.found);
         assertEquals(4455.00, r.totalCostBrl, 0.01);
@@ -199,7 +199,7 @@ class AStarTest {
     @Test
     @DisplayName("Origem igual ao destino: custo R$0,00 e uma cidade na rota")
     void edge_sameOriginDestination() {
-        AStarResult r = aStar.findRoute("SP", "SP");
+        AStarResult r = aStar.findRoute("SP", "SP", null);
         assertTrue(r.found);
         assertEquals(0.0, r.totalCostBrl, 0.001);
         assertEquals(1, r.route.size());
@@ -209,14 +209,14 @@ class AStarTest {
     @Test
     @DisplayName("Capital inexistente: routeFound = false")
     void edge_invalidCapital() {
-        AStarResult r = aStar.findRoute("ZZ", "SP");
+        AStarResult r = aStar.findRoute("ZZ", "SP", null);
         assertFalse(r.found);
     }
 
     @Test
     @DisplayName("AC → AP: rota longa na região amazônica deve ser encontrada")
     void edge_AC_AP() {
-        AStarResult r = aStar.findRoute("AC", "AP");
+        AStarResult r = aStar.findRoute("AC", "AP", null);
         assertTrue(r.found);
         assertEquals("AC", r.route.get(0).getId());
         assertEquals("AP", r.route.get(r.route.size() - 1).getId());
@@ -225,7 +225,7 @@ class AStarTest {
     @Test
     @DisplayName("RR → AL: extremos geográficos do Brasil devem ser conectados")
     void edge_RR_AL() {
-        AStarResult r = aStar.findRoute("RR", "AL");
+        AStarResult r = aStar.findRoute("RR", "AL", null);
         assertTrue(r.found);
         assertTrue(r.route.size() >= 4);
     }
@@ -235,8 +235,8 @@ class AStarTest {
     @Test
     @DisplayName("Custo SP→RJ deve ser igual ao custo RJ→SP (grafo simétrico)")
     void consistency_symmetric() {
-        AStarResult spRj = aStar.findRoute("SP", "RJ");
-        AStarResult rjSp = aStar.findRoute("RJ", "SP");
+        AStarResult spRj = aStar.findRoute("SP", "RJ", null);
+        AStarResult rjSp = aStar.findRoute("RJ", "SP", null);
 
         assertTrue(spRj.found && rjSp.found);
         assertEquals(spRj.totalCostBrl, rjSp.totalCostBrl, 0.01);
@@ -245,13 +245,13 @@ class AStarTest {
     @Test
     @DisplayName("Adicionar ferrovias nunca deve aumentar o custo ótimo")
     void consistency_railwayNeverIncreasesCost() {
-        AStarResult semFerro = aStar.findRoute("SP", "DF");
+        AStarResult semFerro = aStar.findRoute("SP", "DF", null);
 
         aStar.rebuildGraphWithRailways(Set.of(
                 "SP-RJ", "RJ-SP", "RJ-MG", "MG-RJ",
                 "MG-DF", "DF-MG", "SP-MG", "MG-SP"
         ));
-        AStarResult comFerro = aStar.findRoute("SP", "DF");
+        AStarResult comFerro = aStar.findRoute("SP", "DF", null);
 
         assertTrue(semFerro.found && comFerro.found);
         assertTrue(comFerro.totalCostBrl <= semFerro.totalCostBrl + 0.01);
@@ -260,7 +260,7 @@ class AStarTest {
     @Test
     @DisplayName("edges.size() deve ser exatamente route.size() - 1")
     void consistency_edgesAndRouteSize() {
-        AStarResult r = aStar.findRoute("RS", "PA");
+        AStarResult r = aStar.findRoute("RS", "PA", null);
         assertTrue(r.found);
         assertEquals(r.route.size() - 1, r.edges.size());
     }
@@ -269,7 +269,7 @@ class AStarTest {
     @DisplayName("Nenhuma aresta retornada deve ter modal NONE")
     void consistency_noNoneModeInEdges() {
         aStar.rebuildGraphWithRailways(Set.of("SP-RJ", "RJ-SP", "RJ-MG", "MG-RJ"));
-        AStarResult r = aStar.findRoute("SP", "MG");
+        AStarResult r = aStar.findRoute("SP", "MG", null);
 
         assertTrue(r.found);
         r.edges.forEach(e ->

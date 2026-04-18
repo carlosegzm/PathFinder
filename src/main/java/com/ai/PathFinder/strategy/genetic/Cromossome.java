@@ -6,10 +6,28 @@ import java.util.Set;
 
 public class Cromossome {
 
-    Set<Edge> ferrovias;
-    double fitness;
+    private Set<Edge> ferrovias;
+    private double fitness;
 
     public Cromossome(Set<Edge> ferrovias) {
         this.ferrovias = ferrovias;
     }
+
+    public Set<Edge> getFerrovias() {
+        return ferrovias;
+    }
+
+    public void setFerrovias(Set<Edge> ferrovias) {
+        this.ferrovias = ferrovias;
+    }
+
+    public double getFitness() {
+        return fitness;
+    }
+
+    public void setFitness(double fitness) {
+        this.fitness = fitness;
+    }
+
+    
 }

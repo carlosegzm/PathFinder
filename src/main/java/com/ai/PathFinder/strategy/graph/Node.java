@@ -3,9 +3,9 @@ package com.ai.PathFinder.strategy.graph;
 
 public class Node {
     
-    String id;
-    double latitude;
-    double longitude;
+    private String id;
+    private double latitude;
+    private double longitude;
     
     public Node(String id, double latitude, double longitude) {
         this.id = id;
@@ -13,4 +13,27 @@ public class Node {
         this.longitude = longitude;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
 }

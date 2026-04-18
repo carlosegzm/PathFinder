@@ -44,7 +44,7 @@ public class AStarService {
      */
     public AStarResponseDto findRoadOnlyRoute(AStarRequestDto request) {
         aStar.rebuildGraphWithRailways(Set.of());
-        AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination());
+        AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination(), null);
         return toResponseDto(result, "road-only");
     }
 
@@ -62,7 +62,7 @@ public class AStarService {
      */
     public AStarResponseDto findKruskalRoute(AStarRequestDto request) {
         aStar.initGraph(); // recarrega has_railway do banco
-        AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination());
+        AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination(), null);
         return toResponseDto(result, "kruskal-railways");
     }
 
@@ -78,7 +78,7 @@ public class AStarService {
      */
     public AStarResponseDto findGeneticRoute(AStarRequestDto request, Set<String> railwayEdges) {
         aStar.rebuildGraphWithRailways(railwayEdges);
-        AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination());
+        AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination(), null);
         return toResponseDto(result, "genetic-railways");
     }
 

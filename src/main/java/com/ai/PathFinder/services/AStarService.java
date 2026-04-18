@@ -36,9 +36,7 @@ public class AStarService {
 
     private final AStar aStar;
 
-    // -------------------------------------------------------------------------
     // Item b — apenas rodovias
-    // -------------------------------------------------------------------------
 
     /**
      * Rota mais barata usando somente rodovias.
@@ -68,12 +66,11 @@ public class AStarService {
         return toResponseDto(result, "kruskal-railways");
     }
 
-    // -------------------------------------------------------------------------
     // Item f — malha do Algoritmo Genético
-    // -------------------------------------------------------------------------
 
     /**
      * Rota mais barata com a malha ferroviária definida pelo Algoritmo Genético.
+     * buildGraphForRailways() opera 100% em memória
      *
      * @param request      origem e destino
      * @param railwayEdges arestas ferroviárias ativas no cromossomo (ex:
@@ -85,9 +82,7 @@ public class AStarService {
         return toResponseDto(result, "genetic-railways");
     }
 
-    // -------------------------------------------------------------------------
     // Conversão AStarResult → AStarResponseDto
-    // -------------------------------------------------------------------------
 
     private AStarResponseDto toResponseDto(AStarResult result, String mode) {
         if (!result.found) {
@@ -149,7 +144,7 @@ public class AStarService {
                 segments);
     }
 
-    /** Arredonda para 2 casas decimais. */
+    // Arredonda para 2 casas decimais. 
     private BigDecimal round(double value) {
         return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP);
     }

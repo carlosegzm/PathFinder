@@ -270,7 +270,7 @@ public class AStar {
         double dLon = Math.toRadians(lon2 - lon1);
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
                 + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                        * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         return EARTH_RADIUS_KM * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
@@ -348,7 +348,7 @@ public class AStar {
         public final TransportMode arrivalMode; // como chegamos aqui (ROAD, RAILWAY ou NONE)
 
         public SearchState(String capitalId, SearchState previous, Edge edgeUsed,
-                double gCost, double hCost, TransportMode arrivalMode) {
+                           double gCost, double hCost, TransportMode arrivalMode) {
             this.capitalId = capitalId;
             this.previous = previous;
             this.edgeUsed = edgeUsed;

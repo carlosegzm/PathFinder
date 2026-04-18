@@ -204,7 +204,7 @@ public class AStar {
                 // NOVA LÓGICA DE FILTRO:
                 // Se a aresta for ferroviária mas não estiver no conjunto de ferrovias
                 // ativas deste indivíduo do AG, nós a ignoramos.
-                if (edge.mode == TransportMode.RAILWAY && !activeRailways.contains(edge.targetId)) {
+                if (activeRailways != null && edge.mode == TransportMode.RAILWAY && !activeRailways.contains(edge.targetId)) {
                     continue;
                 }
 

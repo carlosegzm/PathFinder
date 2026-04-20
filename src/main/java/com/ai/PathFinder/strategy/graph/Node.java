@@ -1,6 +1,5 @@
 package com.ai.PathFinder.strategy.graph;
 
-
 public class Node {
     
     private String id;

@@ -20,11 +20,16 @@ public class GeneticAlgorithm {
         this.evaluator = evaluator;
     }
 
-    Cromossome run(int popSize, int generations) {
+    public Cromossome run(int popSize, int generations) {
 
         List<Cromossome> population = initPopulation(popSize);
 
         for (int gen = 0; gen < generations; gen++) {
+
+            // log báico pra acompanhar o progresso do algoritmo
+            if(gen % 10 == 0){
+                System.out.println("[INFO] gen: " + gen);
+            }
 
             List<Cromossome> newPop = new ArrayList<>();
 

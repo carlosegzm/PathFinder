@@ -6,9 +6,9 @@ import com.ai.PathFinder.strategy.graph.Node;
 public class Demand {
     private Node origin;
     private Node destiny;
-    private int quantity;
+    private Integer quantity;
 
-    public Demand(Node origin, Node destiny, int quantity) {
+    public Demand(Node origin, Node destiny, Integer quantity) {
         this.origin = origin;
         this.destiny = destiny;
         this.quantity = quantity;
@@ -30,11 +30,11 @@ public class Demand {
         this.destiny = destiny;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 }

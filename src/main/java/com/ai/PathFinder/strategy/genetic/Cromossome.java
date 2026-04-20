@@ -29,5 +29,4 @@ public class Cromossome {
         this.fitness = fitness;
     }
 
-    
 }

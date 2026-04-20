@@ -54,7 +54,6 @@ public class FitnessEvaluator {
                 continue;
             }
 
-            // TODO !!!! Refatorar o A* pra: findRoute(origin, dest, Set<Edge> ferrovias)
             // (OTIMIZAÇÃO)
             /**
              * Nota sobre a mudança: 

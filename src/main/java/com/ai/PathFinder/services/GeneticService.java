@@ -19,6 +19,7 @@ import com.ai.PathFinder.strategy.graph.Adapter;
 import com.ai.PathFinder.strategy.graph.Edge;
 import com.ai.PathFinder.strategy.search.AStar;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -29,27 +30,38 @@ public class GeneticService {
     private final CommonRouteRepository commonRouteRepository;
     private final AStar aStar;
 
+    // Otimização com postconstruct
+    private List<Edge> allPossibleEdges;
+    private List<Demand> demands;
+
+    /**
+     * Carrega os dados uma única vez na inicialização da aplicação.
+     */
+    @PostConstruct
+    public void init() {
+        this.allPossibleEdges = loadAllPossibleRailways();
+        this.demands = loadDemands();
+    }
+
     public GeneticResponseDto runOptimization(GeneticRequestDto request) {
-        if (request.getBudgetLimit() == null) {
+        
+        if (request.budgetLimit() == null) {
             throw new IllegalArgumentException("budgetLimit must not be null");
         }
 
         // BudgetLimit: Define o orçamento (Ex: 60% do custo do Kruskal)
-        double budgetLimit = request.getBudgetLimit().doubleValue();
+        double budgetLimit = request.budgetLimit().doubleValue();
 
-        // Carrega as arestas que podem virar ferrovias (as do Kruskal ou todas)
-        // Aqui assumimos que você quer otimizar sobre os caminhos existentes
-        List<Edge> allPossibleEdges = loadAllPossibleRailways();
-
-        // Configura as demandas (As 50 rotas do Anexo I)
-        List<Demand> demands = loadDemands();
-
-        // Inicializa o avaliador e o AG
         FitnessEvaluator evaluator = new FitnessEvaluator(aStar, demands, budgetLimit);
         GeneticAlgorithm ga = new GeneticAlgorithm(allPossibleEdges, evaluator);
 
-        // Roda o algoritmo (População 100, 50 Gerações)
-        Cromossome winner = ga.run(10000, 50);
+        // Roda o GA
+        Cromossome winner = ga.run(
+            request.popSize(), 
+            request.generations(), 
+            request.mutationRate(),
+            request.tournamentSize()
+        );
 
         // Converte para o DTO
         List<String> railwayIds = winner.getFerrovias().stream()

@@ -32,7 +32,7 @@ public class FitnessEvaluator {
         
         // penalty
         if (constructionCost > budgetLimit) {
-            double penalty = (constructionCost - budgetLimit) * 10;
+            double penalty = Math.pow((constructionCost - budgetLimit), 2);
             return penalty;
         }
         

@@ -24,8 +24,6 @@ public class GeneticController {
 
     @PostMapping("/run")
     public ResponseEntity<GeneticResponseDto> executeOptimization(@Valid @RequestBody GeneticRequestDto request) {
-        System.out.println("Budget: " + request.getBudgetLimit());
-
         // esse endpoint processa e retorna a melhor malha.
         GeneticResponseDto result = geneticService.runOptimization(request);
         return ResponseEntity.ok(result);

@@ -7,8 +7,6 @@ import com.ai.PathFinder.repositories.PathBetweenCapitalsRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
-import org.flywaydb.core.Flyway;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
@@ -53,21 +51,11 @@ public class AStar {
     // Mapa de capitais para acessar latitude/longitude rapidamente
     private Map<String, Capital> capitalMap;
 
-    // Carregamento do grafo (executado UMA VEZ ao iniciar a aplicação)
-    // TODO!!!! Separar isso por classes PELO AMOR DE DEUS
-    @Autowired
-    private Flyway flyway;
-
-    @PostConstruct
-    public void init() {
-        flyway.migrate(); // força migração
-        initGraph();
-    }
-
     /**
      * Lê todas as capitais e caminhos do banco e monta o grafo em memória.
      * A partir daqui, nenhuma query SQL é feita durante o A*.
      */
+    @PostConstruct
     public void initGraph() {
         List<Capital> capitals = capitalRepository.findAll();
         List<PathBetweenCapitals> paths = pathRepository.findAll();

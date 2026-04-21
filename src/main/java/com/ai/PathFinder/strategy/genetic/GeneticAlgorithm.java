@@ -20,7 +20,7 @@ public class GeneticAlgorithm {
         this.evaluator = evaluator;
     }
 
-    public Cromossome run(int popSize, int generations) {
+    public Cromossome run(int popSize, int generations, double mutationRate, int tournamentSize) {
 
         List<Cromossome> population = initPopulation(popSize);
 
@@ -39,12 +39,12 @@ public class GeneticAlgorithm {
 
             while (newPop.size() < popSize) {
 
-                Cromossome p1 = tournamentSelection(population);
-                Cromossome p2 = tournamentSelection(population);
+                Cromossome p1 = tournamentSelection(population, tournamentSize);
+                Cromossome p2 = tournamentSelection(population, tournamentSize);
 
                 Cromossome child = crossover(p1, p2);
 
-                mutate(child, 0.02);
+                mutate(child, mutationRate);
 
                 child.setFitness(evaluator.evaluate(child));
 
@@ -85,12 +85,11 @@ public class GeneticAlgorithm {
         return pop;
     }
 
-    Cromossome tournamentSelection(List<Cromossome> pop) {
-        int k = 3; // tamanho do torneio
+    Cromossome tournamentSelection(List<Cromossome> pop, int tournamentSize) {
 
         Cromossome best = null;
 
-        for (int i = 0; i < k; i++) {
+        for (int i = 0; i < tournamentSize; i++) {
             Cromossome c = pop.get(random.nextInt(pop.size()));
 
             if (best == null || c.getFitness() < best.getFitness()) {

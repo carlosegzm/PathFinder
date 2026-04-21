@@ -26,6 +26,8 @@ public class FitnessEvaluator {
         this.budgetLimit = budgetLimit;
     }
 
+    // O fitness é avaliado com base na malha ferroviária aleatória do cromosomo 
+    // e como ela influencia na distância entre as capitais das rotas mais comuns
     public double evaluate(Cromossome cromossome) {
 
         double constructionCost = calculateConstructionConst(cromossome.getFerrovias());

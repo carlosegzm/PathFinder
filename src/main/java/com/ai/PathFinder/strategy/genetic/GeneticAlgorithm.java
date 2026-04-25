@@ -53,11 +53,7 @@ public class GeneticAlgorithm {
 
             population = newPop;
 
-            System.out.println("Gen " + gen + " best: " + population.get(0).getFitness());
-            System.out.println("BEST CONSTRUCTION COST: "
-                    + evaluator.calculateConstructionConst(population.get(0).getFerrovias()));
-            System.out.println("SECOND BEST CONSTRUCTION COST: "
-                    + evaluator.calculateConstructionConst(population.get(1).getFerrovias()));
+            System.out.println("Gen " + gen + " best: " + population.get(0).getTotalTransportCost());
         }
 
         return population.stream()

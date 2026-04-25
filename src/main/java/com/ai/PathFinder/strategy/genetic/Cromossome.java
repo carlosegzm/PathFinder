@@ -8,6 +8,8 @@ public class Cromossome {
 
     private Set<Edge> ferrovias;
     private double fitness;
+    private double totalTransportCost;
+    private double constructionCost;
 
     public Cromossome(Set<Edge> ferrovias) {
         this.ferrovias = ferrovias;
@@ -27,6 +29,22 @@ public class Cromossome {
 
     public void setFitness(double fitness) {
         this.fitness = fitness;
+    }
+
+    public double getTotalTransportCost() {
+        return totalTransportCost;
+    }
+
+    public void setTotalTransportCost(double totalTransportCost) {
+        this.totalTransportCost = totalTransportCost;
+    }
+
+    public double getConstructionCost() {
+        return constructionCost;
+    }
+
+    public void setConstructionCost(double constructionCost) {
+        this.constructionCost = constructionCost;
     }
 
 }

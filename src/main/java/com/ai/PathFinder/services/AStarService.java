@@ -62,7 +62,7 @@ public class AStarService {
      * IMPORTANTE: chame POST /api/kruskal/execute antes de usar este endpoint.
      */
     public AStarResponseDto findKruskalRoute(KruskalAStarRequestDto request) {
-        aStar.initGraph(); // recarrega has_railway do banco
+        aStar.rebuildGraphWithRailways(request.railwayNetwork());
         AStarResult result = aStar.findRoute(request.origin(), request.destination(), request.railwayNetwork());
         return toResponseDto(result, "kruskal-railways");
     }
@@ -78,7 +78,6 @@ public class AStarService {
      *                     {"SP-RJ","RJ-SP"})
      */
     public AStarResponseDto findGeneticRoute(AStarRequestDto request, Set<String> railwayEdges) {
-        aStar.rebuildGraphWithRailways(railwayEdges);
         AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination(), railwayEdges);
         return toResponseDto(result, "genetic-railways");
     }

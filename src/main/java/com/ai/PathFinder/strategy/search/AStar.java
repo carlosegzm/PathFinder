@@ -52,14 +52,18 @@ public class AStar {
     // Mapa de capitais para acessar latitude/longitude rapidamente
     private Map<String, Capital> capitalMap;
 
+    // Otimização para o genético
+    private List<Capital> capitals;
+    List<PathBetweenCapitals> paths;
+
     /**
      * Lê todas as capitais e caminhos do banco e monta o grafo em memória.
      * A partir daqui, nenhuma query SQL é feita durante o A*.
      */
     @EventListener(ApplicationReadyEvent.class)
     public void initGraph() {
-        List<Capital> capitals = capitalRepository.findAll();
-        List<PathBetweenCapitals> paths = pathRepository.findAll();
+        capitals = capitalRepository.findAll();
+        paths = pathRepository.findAll();
 
         // Monta o mapa de capitais por sigla
         capitalMap = new HashMap<>();
@@ -98,17 +102,16 @@ public class AStar {
      *                     Exemplo: {"SP-RJ", "RJ-SP", "RJ-MG", "MG-RJ"}
      */
     public void rebuildGraphWithRailways(Set<String> railwayEdges) {
-        List<Capital> capitals = capitalRepository.findAll();
-        List<PathBetweenCapitals> paths = pathRepository.findAll();
+        // List<Capital> capitals = capitalRepository.findAll();
+        // List<PathBetweenCapitals> paths = pathRepository.findAll();
 
-        capitalMap = new HashMap<>();
-        for (Capital c : capitals) {
-            capitalMap.put(c.getId(), c);
-        }
+        // OBS:
+        // Agora, ao invés de reconstruir o grafo inteiro a partir do BD
+        // Vamos manter o grafo de rodovias original e manipular apenas as
+        // arestas da malha ferroviária
 
-        graph = new HashMap<>();
-        for (Capital c : capitals) {
-            graph.put(c.getId(), new ArrayList<>());
+        for (String capitalId : graph.keySet()) {
+            graph.get(capitalId).clear(); // Limpa as arestas antigas
         }
 
         for (PathBetweenCapitals path : paths) {
@@ -190,10 +193,10 @@ public class AStar {
             // Expande os vizinhos
             for (Edge edge : graph.getOrDefault(current.capitalId, Collections.emptyList())) {
 
-                // NOVA LÓGICA DE FILTRO:
                 // Se a aresta for ferroviária mas não estiver no conjunto de ferrovias
                 // ativas deste indivíduo do AG, nós a ignoramos.
-                if (activeRailways != null && edge.mode == TransportMode.RAILWAY && !activeRailways.contains(edge.targetId)) {
+                if (activeRailways != null && edge.mode == TransportMode.RAILWAY
+                        && !activeRailways.contains(current.capitalId + "-" + edge.targetId)) {
                     continue;
                 }
 
@@ -259,7 +262,7 @@ public class AStar {
         double dLon = Math.toRadians(lon2 - lon1);
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
                 + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                        * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         return EARTH_RADIUS_KM * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
@@ -337,7 +340,7 @@ public class AStar {
         public final TransportMode arrivalMode; // como chegamos aqui (ROAD, RAILWAY ou NONE)
 
         public SearchState(String capitalId, SearchState previous, Edge edgeUsed,
-                           double gCost, double hCost, TransportMode arrivalMode) {
+                double gCost, double hCost, TransportMode arrivalMode) {
             this.capitalId = capitalId;
             this.previous = previous;
             this.edgeUsed = edgeUsed;
@@ -377,6 +380,12 @@ public class AStar {
         /** Use este método quando não houver rota disponível. */
         public static AStarResult empty() {
             return new AStarResult();
+        }
+
+        @Override
+        public String toString() {
+            return "AStarResult [totalCostBrl=" + totalCostBrl + ", edges=" + edges + ", route=" + route + ", found="
+                    + found + "]";
         }
     }
 }

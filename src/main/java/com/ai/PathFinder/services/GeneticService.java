@@ -76,13 +76,9 @@ public class GeneticService {
                 .distinct() // Remove duplicatas como SP-RJ e RJ-SP
                 .toList();
 
-        double constructionCost = winner.getFerrovias().stream()
-                .mapToDouble(e -> e.getDistance() * 2_000_000)
-                .sum();
-
         return new GeneticResponseDto(
-                winner.getFitness(),
-                constructionCost,
+                winner.getTotalTransportCost(),
+                winner.getConstructionCost(),
                 budgetLimit,
                 railwayIds);
     }

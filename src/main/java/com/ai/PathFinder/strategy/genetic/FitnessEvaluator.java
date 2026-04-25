@@ -30,19 +30,19 @@ public class FitnessEvaluator {
     // e como ela influencia na distância entre as capitais das rotas mais comuns
     public double evaluate(Cromossome cromossome) {
 
-        double constructionCost = calculateConstructionConst(cromossome.getFerrovias());
+        cromossome.setConstructionCost(calculateConstructionConst(cromossome.getFerrovias()));
 
         // penalty
-        if (constructionCost > budgetLimit) {
-            double penalty = Math.pow((constructionCost - budgetLimit), 3);
-            return penalty;
+        double penalty = 0;
+        if (cromossome.getConstructionCost() > budgetLimit) {
+            penalty = Math.pow((cromossome.getConstructionCost() - budgetLimit), 2);
         }
 
         double totalCost = 0;
 
         Set<String> railwayKeys = buildRailwayKeys(cromossome.getFerrovias());
 
-        // aStar.rebuildGraphWithRailways(railwayKeys);
+        aStar.rebuildGraphWithRailways(railwayKeys);
 
         for (Demand d : demands) {
             String originId = d.getOrigin().getId();
@@ -74,7 +74,7 @@ public class FitnessEvaluator {
 
             // invalid route
             if (!result.found) {
-                cost = 1e9;
+                cost = 1e12;
             } else {
                 cost = result.totalCostBrl;
             }
@@ -84,7 +84,10 @@ public class FitnessEvaluator {
             totalCost += cost * d.getQuantity();
         }
 
-        return totalCost;
+        cromossome.setTotalTransportCost(totalCost);
+
+        // Tiebreaker do custo de construção
+        return totalCost + penalty;
     }
 
     double calculateConstructionConst(Set<Edge> ferrovias) {

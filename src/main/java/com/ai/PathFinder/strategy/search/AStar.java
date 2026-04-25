@@ -4,9 +4,10 @@ import com.ai.PathFinder.entities.Capital;
 import com.ai.PathFinder.entities.PathBetweenCapitals;
 import com.ai.PathFinder.repositories.CapitalRepository;
 import com.ai.PathFinder.repositories.PathBetweenCapitalsRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.context.event.EventListener;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
@@ -55,7 +56,7 @@ public class AStar {
      * Lê todas as capitais e caminhos do banco e monta o grafo em memória.
      * A partir daqui, nenhuma query SQL é feita durante o A*.
      */
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
     public void initGraph() {
         List<Capital> capitals = capitalRepository.findAll();
         List<PathBetweenCapitals> paths = pathRepository.findAll();

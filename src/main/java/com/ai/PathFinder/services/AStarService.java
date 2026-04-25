@@ -2,6 +2,7 @@ package com.ai.PathFinder.services;
 
 import com.ai.PathFinder.dtos.Astar.AStarRequestDto;
 import com.ai.PathFinder.dtos.Astar.AStarResponseDto;
+import com.ai.PathFinder.dtos.Astar.KruskalAStarRequestDto;
 import com.ai.PathFinder.dtos.Astar.RouteSegmentDto;
 import com.ai.PathFinder.entities.Capital;
 import com.ai.PathFinder.strategy.search.AStar;
@@ -60,9 +61,9 @@ public class AStarService {
      *
      * IMPORTANTE: chame POST /api/kruskal/execute antes de usar este endpoint.
      */
-    public AStarResponseDto findKruskalRoute(AStarRequestDto request) {
+    public AStarResponseDto findKruskalRoute(KruskalAStarRequestDto request) {
         aStar.initGraph(); // recarrega has_railway do banco
-        AStarResult result = aStar.findRoute(request.getOrigin(), request.getDestination(), null);
+        AStarResult result = aStar.findRoute(request.origin(), request.destination(), request.railwayNetwork());
         return toResponseDto(result, "kruskal-railways");
     }
 

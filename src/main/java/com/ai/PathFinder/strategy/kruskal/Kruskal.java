@@ -4,26 +4,35 @@ import com.ai.PathFinder.entities.Capital;
 import com.ai.PathFinder.entities.PathBetweenCapitals;
 import com.ai.PathFinder.repositories.CapitalRepository;
 import com.ai.PathFinder.repositories.PathBetweenCapitalsRepository;
+
+import lombok.RequiredArgsConstructor;
+
 import com.ai.PathFinder.dtos.kruskal.KruskalResponseDto;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class Kruskal {
 
-    @Autowired
-    private PathBetweenCapitalsRepository pathRepository;
+    private final PathBetweenCapitalsRepository pathRepository;
+    private final CapitalRepository capitalRepository;
 
-    @Autowired
-    private CapitalRepository capitalRepository;
+    // Otimização na inicialização
+    private List<PathBetweenCapitals> allPaths;
+    private List<Capital> allCapitals;
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void init(){
+        this.allPaths = pathRepository.findAll();
+        this.allCapitals = capitalRepository.findAll();
+    }
 
     public KruskalResponseDto executeKruskal() {
-
-        List<PathBetweenCapitals> allPaths = pathRepository.findAll();
-        List<Capital> allCapitals = capitalRepository.findAll();
 
         UnionFind uf = new UnionFind();
         for (Capital capital : allCapitals) {
@@ -35,6 +44,8 @@ public class Kruskal {
 
         double totalDistance = 0;
 
+        Set<String> railwayNetwork = new HashSet<>();
+
         for (PathBetweenCapitals path : allPaths) {
             String originId = path.getOrigin().getId();
             String destinationId = path.getDestination().getId();
@@ -43,13 +54,15 @@ public class Kruskal {
 
                 uf.union(originId, destinationId);
 
-                path.setHasRailway(true);
-                pathRepository.save(path);
+                String id1 = path.getOrigin().getId();
+                String id2 = path.getDestination().getId();
+
+                railwayNetwork.add(
+                    (id1.compareTo(id2) < 0) ? id1 + "-" + id2 : id2 + "-" + id1
+                );
+
                 totalDistance += path.getDistance();
-            } else {
-                path.setHasRailway(false);
-                pathRepository.save(path);
-            }
+            } 
         }
 
         BigDecimal distance = BigDecimal.valueOf(totalDistance);
@@ -60,7 +73,7 @@ public class Kruskal {
         BigDecimal percentage = new BigDecimal("0.60"); //60% custo total
         BigDecimal availableBudgetForGenetics = totalConstructionCost.multiply(percentage);
 
-        KruskalResponseDto response = new KruskalResponseDto(totalDistance, totalConstructionCost, availableBudgetForGenetics);
+        KruskalResponseDto response = new KruskalResponseDto(totalDistance, totalConstructionCost, availableBudgetForGenetics, railwayNetwork);
 
         return response;
     }

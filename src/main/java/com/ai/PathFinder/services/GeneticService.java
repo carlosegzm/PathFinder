@@ -3,6 +3,9 @@ package com.ai.PathFinder.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.ai.PathFinder.dtos.genetic.GeneticRequestDto;
@@ -19,11 +22,11 @@ import com.ai.PathFinder.strategy.graph.Adapter;
 import com.ai.PathFinder.strategy.graph.Edge;
 import com.ai.PathFinder.strategy.search.AStar;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@DependsOn("flyway")
 public class GeneticService {
 
     private final PathBetweenCapitalsRepository pathRepository;
@@ -37,14 +40,14 @@ public class GeneticService {
     /**
      * Carrega os dados uma única vez na inicialização da aplicação.
      */
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
     public void init() {
         this.allPossibleEdges = loadAllPossibleRailways();
         this.demands = loadDemands();
     }
 
     public GeneticResponseDto runOptimization(GeneticRequestDto request) {
-        
+
         if (request.budgetLimit() == null) {
             throw new IllegalArgumentException("budgetLimit must not be null");
         }
@@ -57,15 +60,20 @@ public class GeneticService {
 
         // Roda o GA
         Cromossome winner = ga.run(
-            request.popSize(), 
-            request.generations(), 
-            request.mutationRate(),
-            request.tournamentSize()
-        );
+                request.popSize(),
+                request.generations(),
+                request.mutationRate(),
+                request.tournamentSize());
 
         // Converte para o DTO
         List<String> railwayIds = winner.getFerrovias().stream()
-                .map(e -> e.getFrom().getId() + "-" + e.getTo().getId())
+                .map(e -> {
+                    String id1 = e.getFrom().getId();
+                    String id2 = e.getTo().getId();
+                    // ordem lexicográfica
+                    return (id1.compareTo(id2) < 0) ? id1 + "-" + id2 : id2 + "-" + id1;
+                })
+                .distinct() // Remove duplicatas como SP-RJ e RJ-SP
                 .toList();
 
         double constructionCost = winner.getFerrovias().stream()

@@ -27,7 +27,7 @@ public class GeneticAlgorithm {
         for (int gen = 0; gen < generations; gen++) {
 
             // log báico pra acompanhar o progresso do algoritmo
-            if(gen % 10 == 0){
+            if (gen % 10 == 0) {
                 System.out.println("[INFO] gen: " + gen);
             }
 
@@ -54,6 +54,10 @@ public class GeneticAlgorithm {
             population = newPop;
 
             System.out.println("Gen " + gen + " best: " + population.get(0).getFitness());
+            System.out.println("BEST CONSTRUCTION COST: "
+                    + evaluator.calculateConstructionConst(population.get(0).getFerrovias()));
+            System.out.println("SECOND BEST CONSTRUCTION COST: "
+                    + evaluator.calculateConstructionConst(population.get(1).getFerrovias()));
         }
 
         return population.stream()
@@ -125,12 +129,24 @@ public class GeneticAlgorithm {
 
             if (random.nextDouble() < mutationRate) {
 
-                if (c.getFerrovias().contains(e)) {
-                    c.getFerrovias().remove(e);
-                } else {
+                // Guarda o estado anterior
+                boolean removed = c.getFerrovias().remove(e);
+                if (!removed) {
                     c.getFerrovias().add(e);
                 }
+
+                // ROLLBACK: Se a mutação estourou o budget, desfazemos
+                if (evaluator.validConstructionCost(c)) {
+
+                    // Desfaz a mutação
+                    if (!removed) {
+                        c.getFerrovias().remove(e); // Remove o que tinha adicionado
+                    } else {
+                        c.getFerrovias().add(e); // Adiciona o que tinha removido
+                    }
+                }
             }
+
         }
     }
 }

@@ -26,18 +26,18 @@ public class FitnessEvaluator {
         this.budgetLimit = budgetLimit;
     }
 
-    // O fitness é avaliado com base na malha ferroviária aleatória do cromosomo 
+    // O fitness é avaliado com base na malha ferroviária aleatória do cromosomo
     // e como ela influencia na distância entre as capitais das rotas mais comuns
     public double evaluate(Cromossome cromossome) {
 
         double constructionCost = calculateConstructionConst(cromossome.getFerrovias());
-        
+
         // penalty
         if (constructionCost > budgetLimit) {
-            double penalty = Math.pow((constructionCost - budgetLimit), 2);
+            double penalty = Math.pow((constructionCost - budgetLimit), 3);
             return penalty;
         }
-        
+
         double totalCost = 0;
 
         Set<String> railwayKeys = buildRailwayKeys(cromossome.getFerrovias());
@@ -58,11 +58,14 @@ public class FitnessEvaluator {
 
             // (OTIMIZAÇÃO)
             /**
-             * Nota sobre a mudança: 
-             * O AStar é um service (que é um singleton no spring), e se eu rodar o GA em paralelo ou 
-             * múltiplas req chegaram simultaneamente, um cromossomo pode sobrescrever o grafo do outro
+             * Nota sobre a mudança:
+             * O AStar é um service (que é um singleton no spring), e se eu rodar o GA em
+             * paralelo ou
+             * múltiplas req chegaram simultaneamente, um cromossomo pode sobrescrever o
+             * grafo do outro
              * enquanto o A* ainda está rodando.
-             * Por isso, a solução é permitir que o A* receba as ferrovias válidas como parâmetro de 
+             * Por isso, a solução é permitir que o A* receba as ferrovias válidas como
+             * parâmetro de
              * busca, ao invés de alterar um estado global da classe
              */
             AStar.AStarResult result = aStar.findRoute(originId, destinyId, railwayKeys);
@@ -84,26 +87,47 @@ public class FitnessEvaluator {
         return totalCost;
     }
 
-    private double calculateConstructionConst(Set<Edge> ferrovias) {
+    double calculateConstructionConst(Set<Edge> ferrovias) {
         double total = 0;
+        Set<String> paidPaths = new HashSet<>();
 
         for (Edge e : ferrovias) {
-            total += e.getDistance() * 2_000_000;
-        }
+            String id1 = e.getFrom().getId();
+            String id2 = e.getTo().getId();
 
+            // Cria uma chave única determinística: a menor sigla sempre vem primeiro (ordem
+            // alfabetica)
+            // Exemplo: tanto SP-RJ quanto RJ-SP viram "RJ-SP"
+            // Assim podemos tratar A-B como B-A (aresta sem direção)
+            String normalizedKey = (id1.compareTo(id2) < 0) ? id1 + "-" + id2 : id2 + "-" + id1;
+
+            if (!paidPaths.contains(normalizedKey)) {
+                total += e.getDistance() * 2_000_000;
+                paidPaths.add(normalizedKey);
+            }
+        }
         return total;
+    }
+
+    // returns true if the cromossome's construction cost is lower than the budgetlimit
+    boolean validConstructionCost(Cromossome c) {
+        return calculateConstructionConst(c.getFerrovias()) < budgetLimit;
     }
 
     private Set<String> buildRailwayKeys(Set<Edge> ferrovias) {
         Set<String> keys = new HashSet<>();
-
         for (Edge e : ferrovias) {
-            String from = e.getFrom().getId();
-            String to = e.getTo().getId();
+            String id1 = e.getFrom().getId();
+            String id2 = e.getTo().getId();
 
-            keys.add(from + "-" + to);
+            // Adiciona o sentido original (ex: A-B)
+            keys.add(id1 + "-" + id2);
+
+            // Adiciona o sentido oposto para implementar a aresta bidirecional (ex: B-A)
+            // Assim o A* entende que o trecho está ativo nos dois sentidos
+            keys.add(id2 + "-" + id1);
         }
-
         return keys;
     }
+
 }

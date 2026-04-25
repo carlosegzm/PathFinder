@@ -3,6 +3,7 @@ package com.ai.PathFinder.controllers;
 import com.ai.PathFinder.dtos.Astar.AStarRequestDto;
 import com.ai.PathFinder.dtos.Astar.AStarResponseDto;
 import com.ai.PathFinder.dtos.Astar.GeneticAStarRequestDto;
+import com.ai.PathFinder.dtos.Astar.KruskalAStarRequestDto;
 import com.ai.PathFinder.services.AStarService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,7 @@ public class AStarController {
 
     @PostMapping("/kruskal")
     public ResponseEntity<AStarResponseDto> findKruskalRoute(
-            @Valid @RequestBody AStarRequestDto request) {
+            @Valid @RequestBody KruskalAStarRequestDto request) {
 
         AStarResponseDto response = aStarService.findKruskalRoute(request);
 

@@ -44,7 +44,7 @@ public class Kruskal {
 
         double totalDistance = 0;
 
-        Set<String> railwayNetwork = new HashSet<>();
+        Set<String> formattedRailwayNetwork = new HashSet<>();
 
         for (PathBetweenCapitals path : allPaths) {
             String originId = path.getOrigin().getId();
@@ -54,13 +54,9 @@ public class Kruskal {
 
                 uf.union(originId, destinationId);
 
-                String id1 = path.getOrigin().getId();
-                String id2 = path.getDestination().getId();
-
-                railwayNetwork.add(
-                    (id1.compareTo(id2) < 0) ? id1 + "-" + id2 : id2 + "-" + id1
-                );
-
+                path.setHasRailway(true);
+                pathRepository.save(path);
+                formattedRailwayNetwork.add(originId + "-" + destinationId);
                 totalDistance += path.getDistance();
             } 
         }
@@ -73,7 +69,7 @@ public class Kruskal {
         BigDecimal percentage = new BigDecimal("0.60"); //60% custo total
         BigDecimal availableBudgetForGenetics = totalConstructionCost.multiply(percentage);
 
-        KruskalResponseDto response = new KruskalResponseDto(totalDistance, totalConstructionCost, availableBudgetForGenetics, railwayNetwork);
+        KruskalResponseDto response = new KruskalResponseDto(totalDistance, totalConstructionCost, availableBudgetForGenetics, formattedRailwayNetwork);
 
         return response;
     }

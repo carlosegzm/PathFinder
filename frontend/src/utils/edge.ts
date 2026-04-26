@@ -1,18 +1,15 @@
-export type MeshEdge = {
-  from: string;
-  to: string;
-};
+import type { MeshEdge } from "../types/mesh";
 
-export function parseEdge(edge: string): MeshEdge {
-  const [from, to] = edge.split("-");
+export function parseEdgeCode(edgeCode: string): MeshEdge {
+  const [from, to] = edgeCode.split("-");
 
   if (!from || !to) {
-    throw new Error(`Invalid edge format: ${edge}`);
+    throw new Error(`Invalid edge format: ${edgeCode}`);
   }
 
   return { from, to };
 }
 
-export function parseEdges(edges: string[]): MeshEdge[] {
-  return edges.map(parseEdge);
+export function parseEdgeCodes(edgeCodes: string[]): MeshEdge[] {
+  return edgeCodes.map(parseEdgeCode);
 }

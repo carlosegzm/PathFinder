@@ -1,0 +1,122 @@
+.route-details-panel {
+  position: absolute;
+  z-index: 12;
+  left: calc(var(--sidebar-width) + 2rem);
+  right: 1rem;
+  bottom: 1rem;
+
+  max-height: 34vh;
+  display: flex;
+  flex-direction: column;
+
+  border: 1px solid var(--border-soft);
+  border-radius: 22px;
+  background: rgba(12, 16, 25, 0.82);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.36);
+
+  overflow: hidden;
+}
+
+.route-details-panel--sidebar-collapsed {
+  left: calc(var(--sidebar-collapsed-width) + 2rem);
+}
+
+.route-details-panel__header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.route-details-panel__header span {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.route-details-panel__header h2 {
+  margin: 0.2rem 0 0;
+  font-size: 1rem;
+}
+
+.route-details-panel__close {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--text-main);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.route-segments {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.9rem;
+  overflow-y: auto;
+}
+
+.route-segments__item {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.route-segments__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.route-segments__header strong {
+  font-size: 0.86rem;
+}
+
+.route-segments__mode {
+  flex: 0 0 auto;
+  padding: 0.18rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.14);
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.route-segments__mode--railway {
+  background: rgba(94, 234, 212, 0.14);
+  color: var(--accent);
+}
+
+.route-segments__metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.route-segments__metrics span {
+  padding: 0.16rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.route-segments__empty {
+  margin: 0;
+  padding: 1rem;
+  color: var(--text-muted);
+}

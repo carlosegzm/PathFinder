@@ -21,14 +21,18 @@ export async function getKruskal() {
 }
 
 export async function runGenetic(payload: GeneticRequestApi) {
-  const response = await apiClient.post<GeneticResponseApi>("/genetic/run", payload);
+  const response = await apiClient.post<GeneticResponseApi>(
+    "/genetic/run",
+    payload,
+  );
+
   return response.data;
 }
 
 export async function getKruskalRoute(
   origin: string,
   destination: string,
-  railwayNetwork: string[]
+  railwayNetwork: string[],
 ) {
   const response = await apiClient.post<RouteResponseApi>("/astar/kruskal", {
     origin,
@@ -42,7 +46,7 @@ export async function getKruskalRoute(
 export async function getGeneticRoute(
   origin: string,
   destination: string,
-  railwayEdges: string[]
+  railwayEdges: string[],
 ) {
   const response = await apiClient.post<RouteResponseApi>("/astar/genetic", {
     origin,

@@ -1,0 +1,67 @@
+import type { GeneticResponseApi, KruskalResponseApi } from "../types/api";
+
+export const STATIC_KRUSKAL_RESULT: KruskalResponseApi = {
+  totalDistanceKm: 13943.0,
+  totalConstructionCost: 27886000000.0,
+  availableBudgetForGenetics: 16731600000.0,
+  railwayNetwork: [
+    "MT-RO",
+    "AL-SE",
+    "PR-SP",
+    "PI-TO",
+    "MA-PI",
+    "AM-RO",
+    "DF-GO",
+    "MS-MT",
+    "GO-TO",
+    "MA-PA",
+    "CE-PI",
+    "MG-RJ",
+    "CE-RN",
+    "DF-MG",
+    "AL-PE",
+    "BA-SE",
+    "MS-PR",
+    "ES-MG",
+    "PB-RN",
+    "RS-SC",
+    "PB-PE",
+    "PR-SC",
+    "AP-PA",
+    "AM-RR",
+    "RJ-SP",
+    "AC-RO",
+  ],
+};
+
+export const STATIC_GENETIC_RESULT: GeneticResponseApi = {
+  totalTransportCost: 11010262,
+  constructionCost: 16326000000,
+  budgetLimit: 16731600000,
+  selectedRailways: [
+    "CE-RN",
+    "BA-MG",
+    "CE-PI",
+    "MG-RJ",
+    "PB-RN",
+    "AL-SE",
+    "MS-PR",
+    "MS-MT",
+    "PR-SP",
+    "PR-SC",
+    "AL-PE",
+    "MA-PI",
+    "MG-SP",
+    "PB-PE",
+    "DF-MG",
+    "RS-SC",
+    "BA-SE",
+  ],
+};
+
+export const DEFAULT_GENETIC_PARAMS = {
+  popSize: 200,
+  generations: 100,
+  mutationRate: 0.02,
+  tournamentSize: 3,
+};

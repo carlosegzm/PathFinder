@@ -5,6 +5,8 @@ import { GeneticPanel } from "./GeneticPanel";
 import { MeshControls } from "./MeshControls";
 import { RouteControls } from "./RouteControls";
 import { RouteSummary } from "./RouteSummary";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { appConfig } from "../../config/appConfig";
 import "./Sidebar.css";
 
 type SidebarProps = {
@@ -64,15 +66,26 @@ export function Sidebar({
 }: SidebarProps) {
   return (
     <aside className={isCollapsed ? "sidebar sidebar--collapsed" : "sidebar"}>
+      {appConfig.useMockRoute && (
+        <p className="sidebar-dev-warning">Mock de rota ativo</p>
+      )}
       <button
         type="button"
         className="sidebar__collapse-button"
         onClick={onToggleCollapse}
-        aria-label={isCollapsed ? "Expandir menu lateral" : "Colapsar menu lateral"}
+        aria-label={
+          isCollapsed ? "Expandir menu lateral" : "Colapsar menu lateral"
+        }
         title={isCollapsed ? "Expandir" : "Colapsar"}
       >
-        {isCollapsed ? "›" : "‹"}
+        {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
       </button>
+
+      {isCollapsed && (
+        <div className="sidebar__collapsed-brand" aria-hidden="true">
+          <span>PF</span>
+        </div>
+      )}
 
       {!isCollapsed && (
         <>

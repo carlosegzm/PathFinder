@@ -10,12 +10,31 @@
   flex-direction: column;
 
   border: 1px solid var(--border-soft);
-  border-radius: 22px;
+  border-radius: var(--radius-panel);
   background: rgba(12, 16, 25, 0.82);
   backdrop-filter: blur(18px);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.36);
+  box-shadow: var(--shadow-panel);
 
   overflow: hidden;
+
+  animation: route-details-enter 180ms ease both;
+  transition:
+    left 180ms ease,
+    right 180ms ease,
+    bottom 180ms ease,
+    max-height 180ms ease;
+}
+
+@keyframes route-details-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.45rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .route-details-panel--sidebar-collapsed {
@@ -44,17 +63,32 @@
 .route-details-panel__header h2 {
   margin: 0.2rem 0 0;
   font-size: 1rem;
+  letter-spacing: -0.02em;
 }
 
 .route-details-panel__close {
+  flex: 0 0 auto;
   width: 2rem;
   height: 2rem;
   border: 1px solid var(--border-soft);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.055);
   color: var(--text-main);
   font-size: 1.25rem;
   line-height: 1;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    transform 140ms ease;
+}
+
+.route-details-panel__close:hover {
+  border-color: rgba(251, 113, 133, 0.32);
+  background: rgba(251, 113, 133, 0.12);
+}
+
+.route-details-panel__close:active {
+  transform: translateY(1px);
 }
 
 .route-segments {
@@ -64,6 +98,25 @@
   gap: 0.55rem;
   padding: 0.9rem;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+
+.route-segments::-webkit-scrollbar {
+  width: 8px;
+}
+
+.route-segments::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.route-segments::-webkit-scrollbar-thumb {
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.route-segments::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .route-segments__item {
@@ -84,12 +137,13 @@
 
 .route-segments__header strong {
   font-size: 0.86rem;
+  line-height: 1.35;
 }
 
 .route-segments__mode {
   flex: 0 0 auto;
   padding: 0.18rem 0.45rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(148, 163, 184, 0.14);
   color: var(--text-muted);
   font-size: 0.68rem;
@@ -111,7 +165,7 @@
 
 .route-segments__metrics span {
   padding: 0.16rem 0.4rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.055);
 }
 
@@ -119,4 +173,31 @@
   margin: 0;
   padding: 1rem;
   color: var(--text-muted);
+}
+
+@media (max-width: 900px) {
+  .route-details-panel,
+  .route-details-panel--sidebar-collapsed {
+    left: 1rem;
+    right: 1rem;
+    max-height: 42vh;
+  }
+}
+
+@media (max-width: 600px) {
+  .route-details-panel,
+  .route-details-panel--sidebar-collapsed {
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    max-height: 46vh;
+  }
+
+  .route-details-panel__header {
+    padding: 0.85rem;
+  }
+
+  .route-segments {
+    padding: 0.75rem;
+  }
 }

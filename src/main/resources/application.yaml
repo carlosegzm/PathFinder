@@ -3,10 +3,9 @@ spring:
     name: PathFinder
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/pathfinder_db
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/pathfinder_db}
+username: ${SPRING_DATASOURCE_USERNAME:postgres}
+password: ${SPRING_DATASOURCE_PASSWORD:postgres}
 
   jpa:
     defer-datasource-initialization: true

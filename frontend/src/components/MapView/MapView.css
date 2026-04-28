@@ -4,9 +4,10 @@
   height: 100%;
   overflow: hidden;
   background:
-    radial-gradient(circle at 50% 35%, rgba(94, 234, 212, 0.08), transparent 32rem),
-    radial-gradient(circle at 80% 80%, rgba(250, 204, 21, 0.045), transparent 28rem),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.018), transparent 38%),
+    radial-gradient(circle at 46% 32%, rgba(156, 255, 59, 0.08), transparent 32rem),
+    radial-gradient(circle at 78% 78%, rgba(255, 107, 53, 0.075), transparent 30rem),
+    radial-gradient(circle at 18% 82%, rgba(190, 120, 255, 0.07), transparent 28rem),
+    linear-gradient(135deg, rgba(190, 120, 255, 0.035), transparent 42%),
     var(--bg-main);
 }
 
@@ -25,8 +26,8 @@
 }
 
 .map-view__state {
-  fill: rgba(20, 28, 42, 0.92);
-  stroke: rgba(255, 255, 255, 0.12);
+  fill: rgba(20, 16, 34, 0.94);
+  stroke: rgba(216, 200, 239, 0.105);
   stroke-width: 0.8;
   vector-effect: non-scaling-stroke;
   transition:
@@ -36,9 +37,9 @@
 }
 
 .map-view__state:hover {
-  fill: rgba(32, 44, 64, 0.98);
-  stroke: rgba(94, 234, 212, 0.58);
-  filter: brightness(1.08);
+  fill: rgba(33, 25, 54, 0.98);
+  stroke: rgba(156, 255, 59, 0.52);
+  filter: brightness(1.12);
 }
 
 .map-view__status {
@@ -77,26 +78,30 @@
   stroke-width: 1.05;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
-  opacity: 0.58;
+  opacity: 0.5;
 }
 
 .map-view__mesh--full .map-view__mesh-edge {
-  stroke: var(--road);
-  opacity: 0.48;
+  stroke: rgba(172, 156, 190, 0.34);
+  opacity: 0.42;
 }
 
 .map-view__mesh--kruskal .map-view__mesh-edge {
   stroke: var(--railway);
-  stroke-width: 1.7;
-  opacity: 0.86;
-  filter: drop-shadow(0 0 5px rgba(94, 234, 212, 0.18));
+  stroke-width: 1.75;
+  opacity: 0.9;
+  filter:
+    drop-shadow(0 0 6px rgba(156, 255, 59, 0.34))
+    drop-shadow(0 0 12px rgba(156, 255, 59, 0.12));
 }
 
 .map-view__mesh--genetic .map-view__mesh-edge {
   stroke: var(--route);
-  stroke-width: 1.7;
-  opacity: 0.86;
-  filter: drop-shadow(0 0 5px rgba(250, 204, 21, 0.18));
+  stroke-width: 1.75;
+  opacity: 0.9;
+  filter:
+    drop-shadow(0 0 6px rgba(255, 107, 53, 0.34))
+    drop-shadow(0 0 12px rgba(255, 107, 53, 0.12));
 }
 
 .map-view__active-route {
@@ -105,11 +110,13 @@
 
 .map-view__route-segment {
   stroke: var(--route);
-  stroke-width: 3.25;
+  stroke-width: 3.4;
   stroke-linecap: round;
-  opacity: 0.96;
+  opacity: 0.98;
   vector-effect: non-scaling-stroke;
-  filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.35));
+  filter:
+    drop-shadow(0 0 7px rgba(255, 107, 53, 0.58))
+    drop-shadow(0 0 16px rgba(255, 107, 53, 0.24));
 }
 
 .map-view__route-segment--road {
@@ -120,7 +127,9 @@
 .map-view__route-segment--railway {
   stroke: var(--railway);
   stroke-dasharray: 8 5;
-  filter: drop-shadow(0 0 10px rgba(94, 234, 212, 0.45));
+  filter:
+    drop-shadow(0 0 8px rgba(156, 255, 59, 0.55))
+    drop-shadow(0 0 16px rgba(156, 255, 59, 0.22));
 }
 
 .map-view__route-points {
@@ -129,15 +138,19 @@
 
 .map-view__route-point {
   fill: var(--route);
-  stroke: rgba(7, 10, 16, 0.95);
+  stroke: rgba(8, 6, 17, 0.98);
   stroke-width: 2;
   vector-effect: non-scaling-stroke;
-  filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.45));
+  filter:
+    drop-shadow(0 0 7px rgba(255, 107, 53, 0.58))
+    drop-shadow(0 0 14px rgba(255, 107, 53, 0.22));
 }
 
 .map-view__route-point--destination {
   fill: var(--danger);
-  filter: drop-shadow(0 0 10px rgba(251, 113, 133, 0.55));
+  filter:
+    drop-shadow(0 0 8px rgba(255, 61, 129, 0.62))
+    drop-shadow(0 0 16px rgba(255, 61, 129, 0.28));
 }
 
 .map-view__capitals {
@@ -150,10 +163,12 @@
 
 .map-view__capital-dot {
   fill: var(--accent);
-  stroke: rgba(7, 10, 16, 0.95);
+  stroke: rgba(8, 6, 17, 0.98);
   stroke-width: 1.8;
   vector-effect: non-scaling-stroke;
-  filter: drop-shadow(0 0 8px rgba(94, 234, 212, 0.35));
+  filter:
+    drop-shadow(0 0 7px rgba(156, 255, 59, 0.46))
+    drop-shadow(0 0 13px rgba(156, 255, 59, 0.18));
   transition:
     r 140ms ease,
     fill 140ms ease,
@@ -164,12 +179,14 @@
 .map-view__capital-node:hover .map-view__capital-dot {
   r: 5.5;
   fill: var(--route);
-  filter: drop-shadow(0 0 12px rgba(250, 204, 21, 0.55));
+  filter:
+    drop-shadow(0 0 8px rgba(255, 107, 53, 0.62))
+    drop-shadow(0 0 16px rgba(255, 107, 53, 0.28));
 }
 
 .map-view__capital-label {
-  fill: rgba(244, 247, 251, 0.72);
-  stroke: rgba(7, 10, 16, 0.9);
+  fill: rgba(248, 243, 255, 0.76);
+  stroke: rgba(8, 6, 17, 0.94);
   stroke-width: 3;
   paint-order: stroke;
   font-size: 0.65rem;
@@ -180,5 +197,5 @@
 }
 
 .map-view__capital-node:hover .map-view__capital-label {
-  fill: rgba(244, 247, 251, 1);
+  fill: rgba(248, 243, 255, 1);
 }

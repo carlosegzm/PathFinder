@@ -11,7 +11,7 @@
 
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-panel);
-  background: rgba(12, 16, 25, 0.82);
+  background: rgba(16, 12, 28, 0.84);
   backdrop-filter: blur(18px);
   box-shadow: var(--shadow-panel);
 
@@ -50,6 +50,9 @@
 
   padding: 1rem 1.1rem;
   border-bottom: 1px solid var(--border-soft);
+  background:
+    linear-gradient(135deg, rgba(190, 120, 255, 0.06), transparent 60%),
+    rgba(255, 255, 255, 0.018);
 }
 
 .route-details-panel__header span {
@@ -72,19 +75,23 @@
   height: 2rem;
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.055);
+  background: rgba(190, 120, 255, 0.075);
   color: var(--text-main);
   font-size: 1.25rem;
   line-height: 1;
   transition:
     background 140ms ease,
     border-color 140ms ease,
-    transform 140ms ease;
+    color 140ms ease,
+    transform 140ms ease,
+    box-shadow 140ms ease;
 }
 
 .route-details-panel__close:hover {
-  border-color: rgba(251, 113, 133, 0.32);
-  background: rgba(251, 113, 133, 0.12);
+  border-color: rgba(255, 61, 129, 0.4);
+  background: rgba(255, 61, 129, 0.13);
+  color: var(--danger);
+  box-shadow: 0 0 16px rgba(255, 61, 129, 0.12);
 }
 
 .route-details-panel__close:active {
@@ -99,7 +106,7 @@
   padding: 0.9rem;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+  scrollbar-color: rgba(190, 120, 255, 0.22) transparent;
 }
 
 .route-segments::-webkit-scrollbar {
@@ -112,11 +119,11 @@
 
 .route-segments::-webkit-scrollbar-thumb {
   border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(190, 120, 255, 0.18);
 }
 
 .route-segments::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(156, 255, 59, 0.28);
 }
 
 .route-segments__item {
@@ -125,7 +132,9 @@
   padding: 0.75rem;
   border: 1px solid var(--border-soft);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.045);
+  background:
+    linear-gradient(135deg, rgba(190, 120, 255, 0.045), transparent 58%),
+    rgba(255, 255, 255, 0.035);
 }
 
 .route-segments__header {
@@ -144,14 +153,14 @@
   flex: 0 0 auto;
   padding: 0.18rem 0.45rem;
   border-radius: var(--radius-pill);
-  background: rgba(148, 163, 184, 0.14);
+  background: rgba(172, 156, 190, 0.14);
   color: var(--text-muted);
   font-size: 0.68rem;
   font-weight: 800;
 }
 
 .route-segments__mode--railway {
-  background: rgba(94, 234, 212, 0.14);
+  background: rgba(156, 255, 59, 0.13);
   color: var(--accent);
 }
 

@@ -10,11 +10,11 @@
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-card);
 
-  background: rgba(12, 16, 25, 0.68);
+  background: rgba(16, 12, 28, 0.72);
   backdrop-filter: blur(18px);
   box-shadow: var(--shadow-soft);
 
-  opacity: 0.82;
+  opacity: 0.84;
 
   transition:
     opacity 160ms ease,
@@ -26,7 +26,7 @@
 
 .map-legend:hover {
   opacity: 1;
-  background: rgba(12, 16, 25, 0.92);
+  background: rgba(16, 12, 28, 0.94);
 }
 
 .map-legend--raised {
@@ -70,26 +70,30 @@
 
 .map-legend__line--full {
   border-color: var(--road);
-  opacity: 0.75;
+  opacity: 0.8;
 }
 
 .map-legend__line--kruskal {
   border-color: var(--railway);
+  filter: drop-shadow(0 0 5px rgba(156, 255, 59, 0.32));
 }
 
 .map-legend__line--genetic {
   border-color: var(--route);
+  filter: drop-shadow(0 0 5px rgba(255, 107, 53, 0.32));
 }
 
 .map-legend__line--route-road {
   border-color: var(--route);
   border-top-width: 3px;
+  filter: drop-shadow(0 0 5px rgba(255, 107, 53, 0.4));
 }
 
 .map-legend__line--route-railway {
   border-color: var(--railway);
   border-top-width: 3px;
   border-style: dashed;
+  filter: drop-shadow(0 0 5px rgba(156, 255, 59, 0.4));
 }
 
 .map-legend__dot {
@@ -97,16 +101,16 @@
   height: 10px;
   margin-left: 12px;
 
-  border: 2px solid rgba(7, 10, 16, 0.95);
+  border: 2px solid rgba(8, 6, 17, 0.95);
   border-radius: var(--radius-pill);
 
   background: var(--accent);
-  box-shadow: 0 0 8px rgba(94, 234, 212, 0.35);
+  box-shadow: 0 0 8px rgba(156, 255, 59, 0.38);
 }
 
 .map-legend__dot--destination {
   background: var(--danger);
-  box-shadow: 0 0 8px rgba(251, 113, 133, 0.5);
+  box-shadow: 0 0 8px rgba(255, 61, 129, 0.52);
 }
 
 @media (max-width: 760px) {

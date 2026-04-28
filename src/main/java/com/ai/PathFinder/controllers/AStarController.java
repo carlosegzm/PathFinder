@@ -33,7 +33,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/astar")
-@CrossOrigin(origins = "*")
 public class AStarController {
 
     private final AStarService aStarService;

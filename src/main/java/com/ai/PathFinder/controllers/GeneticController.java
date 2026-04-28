@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/genetic")
-@CrossOrigin(origins = "*")
 public class GeneticController {
 
     private final GeneticService geneticService;

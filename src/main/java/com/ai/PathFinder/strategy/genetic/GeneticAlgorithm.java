@@ -53,7 +53,8 @@ public class GeneticAlgorithm {
 
             population = newPop;
 
-            System.out.println("Gen " + gen + " best: " + population.get(0).getTotalTransportCost());
+            // Tira isso depois, não serve pra muita coisa...
+            if (gen % 10 == 0) System.out.println("Gen " + gen + " best: " + population.get(0).getTotalTransportCost());
         }
 
         return population.stream()
@@ -132,7 +133,7 @@ public class GeneticAlgorithm {
                 }
 
                 // ROLLBACK: Se a mutação estourou o budget, desfazemos
-                if (evaluator.validConstructionCost(c)) {
+                if (!evaluator.validConstructionCost(c)) {
 
                     // Desfaz a mutação
                     if (!removed) {

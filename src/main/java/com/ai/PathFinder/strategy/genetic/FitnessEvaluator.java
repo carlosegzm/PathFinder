@@ -114,7 +114,7 @@ public class FitnessEvaluator {
 
     // returns true if the cromossome's construction cost is lower than the budgetlimit
     boolean validConstructionCost(Cromossome c) {
-        return calculateConstructionConst(c.getFerrovias()) < budgetLimit;
+        return calculateConstructionConst(c.getFerrovias()) <= budgetLimit;
     }
 
     private Set<String> buildRailwayKeys(Set<Edge> ferrovias) {

@@ -52,9 +52,6 @@ public class GeneticAlgorithm {
             }
 
             population = newPop;
-
-            // Tira isso depois, não serve pra muita coisa...
-            if (gen % 10 == 0) System.out.println("Gen " + gen + " best: " + population.get(0).getTotalTransportCost());
         }
 
         return population.stream()
@@ -66,12 +63,19 @@ public class GeneticAlgorithm {
         Set<Edge> ferrovias = new HashSet<>();
 
         for (Edge e : allEdges) {
-            if (random.nextBoolean()) {
+            if (random.nextDouble() < 0.3) {
                 ferrovias.add(e);
             }
         }
 
-        return new Cromossome(ferrovias);
+        Cromossome c = new Cromossome(ferrovias);
+
+        while (!evaluator.validConstructionCost(c) && !c.getFerrovias().isEmpty()) {
+            Edge edge = c.getFerrovias().iterator().next();
+            c.getFerrovias().remove(edge);
+        }
+
+        return c;
     }
 
     List<Cromossome> initPopulation(int size) {

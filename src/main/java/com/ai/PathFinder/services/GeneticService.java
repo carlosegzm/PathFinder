@@ -66,7 +66,7 @@ public class GeneticService {
         // BudgetLimit: Define o orçamento (Ex: 60% do custo do Kruskal)
         double budgetLimit = request.budgetLimit().doubleValue();
 
-        FitnessEvaluator evaluator = new FitnessEvaluator(aStar, demands, budgetLimit);
+        FitnessEvaluator evaluator = new FitnessEvaluator(aStar, demands, budgetLimit, allPossibleEdges);
         GeneticAlgorithm ga = new GeneticAlgorithm(allPossibleEdges, evaluator);
 
         // Roda o GA

@@ -52,8 +52,6 @@ public class GeneticAlgorithm {
             }
 
             population = newPop;
-
-            System.out.println("Gen " + gen + " best: " + population.get(0).getTotalTransportCost());
         }
 
         return population.stream()
@@ -65,12 +63,19 @@ public class GeneticAlgorithm {
         Set<Edge> ferrovias = new HashSet<>();
 
         for (Edge e : allEdges) {
-            if (random.nextBoolean()) {
+            if (random.nextDouble() < 0.3) {
                 ferrovias.add(e);
             }
         }
 
-        return new Cromossome(ferrovias);
+        Cromossome c = new Cromossome(ferrovias);
+
+        while (!evaluator.validConstructionCost(c) && !c.getFerrovias().isEmpty()) {
+            Edge edge = c.getFerrovias().iterator().next();
+            c.getFerrovias().remove(edge);
+        }
+
+        return c;
     }
 
     List<Cromossome> initPopulation(int size) {
@@ -132,7 +137,7 @@ public class GeneticAlgorithm {
                 }
 
                 // ROLLBACK: Se a mutação estourou o budget, desfazemos
-                if (evaluator.validConstructionCost(c)) {
+                if (!evaluator.validConstructionCost(c)) {
 
                     // Desfaz a mutação
                     if (!removed) {

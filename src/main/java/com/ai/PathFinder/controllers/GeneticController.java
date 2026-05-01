@@ -1,7 +1,6 @@
 package com.ai.PathFinder.controllers;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/genetic")
-@CrossOrigin(origins = "*")
 public class GeneticController {
 
     private final GeneticService geneticService;

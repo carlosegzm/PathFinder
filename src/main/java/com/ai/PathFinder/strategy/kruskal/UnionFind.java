@@ -9,12 +9,25 @@ public class UnionFind {
     // mapeia o nó para o seu nó pai
     private Map<String, String> parent = new HashMap<>();
 
-    // cria um novo conjunto onde o elemento é o seu próprio pai
+    /**
+     * Cria um novo conjunto para uma capital específica, onde ela é inicialmente
+     * seu próprio pai (representante).
+     *
+     * @param id O identificador único da capital.
+     */
     public void makeSet(String id) {
         parent.put(id, id);
     }
 
-    // retorna o pai do conjunto ao qual o id pertence.
+    /**
+     * Encontra o representante (raiz) do conjunto ao qual o identificador pertence.
+     * Implementa a técnica de compactação de caminho (path compression) para
+     * otimizar buscas futuras, atualizando o pai diretamente para a raiz.
+     * 
+     * @param id O identificador da capital a ser buscada.
+     * 
+     * @return O identificador da capital raiz do conjunto.
+     */
     public String find(String id) {
 
         // se a capital aponta para ela mesma, ela é o pai
@@ -28,7 +41,14 @@ public class UnionFind {
         return root;
     }
 
-    // junta duas capitais no mesmo grupo
+    /**
+     * Une dois conjuntos distintos em um único grupo.
+     * Verifica se os elementos já pertencem ao mesmo grupo antes de realizar a
+     * operação para evitar redundâncias.
+     * 
+     * @param id1 Identificador da primeira capital.
+     * @param id2 Identificador da segunda capital.
+     */
     public void union(String id1, String id2) {
         String root1 = find(id1);
         String root2 = find(id2);

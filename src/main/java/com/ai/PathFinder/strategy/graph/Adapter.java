@@ -5,6 +5,12 @@ import com.ai.PathFinder.entities.CommonRoute;
 import com.ai.PathFinder.entities.PathBetweenCapitals;
 import com.ai.PathFinder.strategy.genetic.Demand;
 
+/**
+ * Classe utilitária responsável pela conversão (mapeamento) entre as entidades de persistência 
+ * do banco de dados e os objetos de lógica de grafo do sistema.
+ * Facilita a transformação de Capitais, Caminhos e Rotas Comuns em {@link Node}, {@link Edge} 
+ * e {@link Demand}, respectivamente.
+ */
 public class Adapter {
 
     public static Node fromCapital(Capital c) {

@@ -35,7 +35,6 @@ class FitnessEvaluatorTest {
         List<Edge> allEdges = List.of(expensiveEdge);
 
         FitnessEvaluator evaluator = new FitnessEvaluator(
-                aStarMock,
                 demands,
                 budget,
                 allEdges

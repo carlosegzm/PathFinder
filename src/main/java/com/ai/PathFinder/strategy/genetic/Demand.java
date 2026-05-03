@@ -2,7 +2,12 @@ package com.ai.PathFinder.strategy.genetic;
 
 import com.ai.PathFinder.strategy.graph.Node;
 
-// Rotas mais comuns
+/**
+ * Representa uma necessidade de transporte de carga entre dois pontos geográficos.
+ *      Define o par origem-destino e a intensidade (quantidade) do fluxo necessário. 
+ * É a unidade básica utilizada pelo {@link FitnessEvaluator} para simular o uso da 
+ * malha ferroviária e determinar a eficiência econômica da rede proposta pelo algoritmo.
+ */
 public class Demand {
     private Node origin;
     private Node destiny;

@@ -1,5 +1,10 @@
 package com.ai.PathFinder.strategy.graph;
 
+/**
+ * Representa uma aresta no grafo, conectando dois objetos {@link Node}.
+ * Contém informações sobre a distância física entre os pontos e um sinalizador (flag) 
+ * que indica se existe uma ferrovia ativa ou construída naquele segmento.
+ */
 public class Edge {
 
     private Node from;

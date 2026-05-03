@@ -20,7 +20,6 @@ import com.ai.PathFinder.strategy.genetic.FitnessEvaluator;
 import com.ai.PathFinder.strategy.genetic.GeneticAlgorithm;
 import com.ai.PathFinder.strategy.graph.Adapter;
 import com.ai.PathFinder.strategy.graph.Edge;
-import com.ai.PathFinder.strategy.search.AStar;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +30,6 @@ public class GeneticService {
 
     private final PathBetweenCapitalsRepository pathRepository;
     private final CommonRouteRepository commonRouteRepository;
-    private final AStar aStar;
     private GeneticResponseDto cachedDefaultResult;
 
     // Otimização com postconstruct
@@ -39,7 +37,10 @@ public class GeneticService {
     private List<Demand> demands;
 
     /**
-     * Carrega os dados uma única vez na inicialização da aplicação.
+     * Carrega e pré-processa os dados geográficos e de demanda uma única vez na
+     * inicialização da aplicação.
+     * Este método é acionado assim que o contexto da aplicação Spring está pronto
+     * para uso.
      */
     @EventListener(ApplicationReadyEvent.class)
     public void init() {
@@ -47,26 +48,41 @@ public class GeneticService {
         this.demands = loadDemands();
     }
 
+    /**
+     * Executa o processo de otimização da malha ferroviária através do Algoritmo
+     * Genético.
+     * O método inclui uma lógica de cache para requisições com parâmetros padrão,
+     * valida o limite
+     * de orçamento e converte o resultado do melhor cromossomo para um DTO de
+     * resposta.
+     * 
+     * @param request Objeto contendo os parâmetros da simulação (tamanho da
+     *                população, gerações, orçamento, etc.).
+     * 
+     * @return Um objeto contendo o custo total de transporte, custo de construção e
+     *         as ferrovias sugeridas.
+     * 
+     * @throws IllegalArgumentException Se o limite de orçamento for nulo.
+     */
     public GeneticResponseDto runOptimization(GeneticRequestDto request) {
 
         if (request.budgetLimit() == null) {
             throw new IllegalArgumentException("budgetLimit must not be null");
         }
 
-        boolean isDefaultRequest = 
-                request.popSize() == 200 &&
+        boolean isDefaultRequest = request.popSize() == 200 &&
                 request.generations() == 100 &&
                 Math.abs(request.mutationRate() - 0.03) < 0.000001 &&
                 request.tournamentSize() == 3;
-            
+
         if (isDefaultRequest && cachedDefaultResult != null) {
             return cachedDefaultResult;
-        } 
+        }
 
         // BudgetLimit: Define o orçamento (Ex: 60% do custo do Kruskal)
         double budgetLimit = request.budgetLimit().doubleValue();
 
-        FitnessEvaluator evaluator = new FitnessEvaluator(aStar, demands, budgetLimit, allPossibleEdges);
+        FitnessEvaluator evaluator = new FitnessEvaluator(demands, budgetLimit, allPossibleEdges);
         GeneticAlgorithm ga = new GeneticAlgorithm(allPossibleEdges, evaluator);
 
         // Roda o GA
@@ -91,8 +107,7 @@ public class GeneticService {
                 winner.getTotalTransportCost(),
                 winner.getConstructionCost(),
                 budgetLimit,
-                railwayIds
-        );
+                railwayIds);
 
         if (isDefaultRequest) {
             cachedDefaultResult = response;
@@ -101,6 +116,13 @@ public class GeneticService {
         return response;
     }
 
+    /**
+     * Busca no repositório todos os caminhos possíveis entre capitais e os converte
+     * para o modelo de arestas do grafo.
+     * 
+     * @return Uma lista de objetos Edge representando todas as conexões
+     *         ferroviárias candidatas.
+     */
     private List<Edge> loadAllPossibleRailways() {
         List<PathBetweenCapitals> paths = pathRepository.findAll();
         List<Edge> egdes = new ArrayList<>();
@@ -112,6 +134,15 @@ public class GeneticService {
         return egdes;
     }
 
+    /**
+     * Recupera todas as rotas comuns do banco de dados e as transforma em objetos
+     * de Demanda.
+     * Essas demandas são utilizadas para calcular o fluxo e o custo de transporte
+     * no avaliador de fitness.
+     * 
+     * @return Uma lista de demandas contendo origem, destino e quantidade de
+     *         carga.
+     */
     private List<Demand> loadDemands() {
         List<CommonRoute> commonRoutes = commonRouteRepository.findAll();
         List<Demand> demands = new ArrayList<>();

@@ -24,8 +24,4 @@ public class CommonRouteController {
         return ResponseEntity.ok(commonRoutesList);
     }
 
-
-
-
-
 }

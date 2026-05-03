@@ -23,11 +23,12 @@ import java.util.Set;
  *
  *   POST /api/astar/kruskal
  *     Item d: menor rota com a malha ferroviária do Kruskal.
- *     Pré-condição: chamar POST /api/kruskal/execute antes.
- *     Body: { "origin": "SP", "destination": "RJ" }
+ *     Pré-condição: chamar GET /api/kruskal antes.
+ *     Body: { "origin": "SP", "destination": "RJ", "railwayNetwork": ["SP-RJ","RJ-SP"] }
  *
  *   POST /api/astar/genetic
  *     Item f: menor rota com a malha ferroviária do Algoritmo Genético.
+ *     Pré-condição: chamar POST /api/genetic/run antes.
  *     Body: { "origin": "SP", "destination": "AM", "railwayEdges": ["SP-RJ","RJ-SP"] }
  */
 @RequiredArgsConstructor

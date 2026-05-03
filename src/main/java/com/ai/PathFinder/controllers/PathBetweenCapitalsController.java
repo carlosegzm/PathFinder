@@ -22,9 +22,5 @@ public class PathBetweenCapitalsController {
         List<PathBetweenCapitalsDto> pathsBetweenCapitalsList = service.listAllPathsBetweenCapitals();
         return ResponseEntity.ok(pathsBetweenCapitalsList);
     }
-
-
-
-
-
+    
 }

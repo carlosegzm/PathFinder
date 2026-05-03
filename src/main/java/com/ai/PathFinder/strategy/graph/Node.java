@@ -1,5 +1,10 @@
 package com.ai.PathFinder.strategy.graph;
 
+/**
+ * Representa um vértice (nó) no grafo, correspondendo a uma localização geográfica (capital).
+ * Armazena a identificação única da cidade e suas coordenadas geográficas (latitude e longitude) 
+ * para cálculos de distância e mapeamento.
+ */
 public class Node {
     
     private String id;

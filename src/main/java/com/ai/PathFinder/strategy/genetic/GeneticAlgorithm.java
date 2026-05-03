@@ -15,11 +15,33 @@ public class GeneticAlgorithm {
     private FitnessEvaluator evaluator;
     private Random random = new Random();
 
+    /**
+     * Inicializa o motor do algoritmo genético com as arestas disponíveis e o
+     * avaliador de fitness.
+     * 
+     * @param allEdges  Lista de todas as arestas (caminhos possíveis) do grafo.
+     * @param evaluator Instância responsável por calcular o custo e validar o
+     *                  orçamento dos cromossomos.
+     */
     public GeneticAlgorithm(List<Edge> allEdges, FitnessEvaluator evaluator) {
         this.allEdges = allEdges;
         this.evaluator = evaluator;
     }
 
+    /**
+     * Executa o ciclo completo do algoritmo genético através de múltiplas gerações.
+     * Implementa elitismo (preservação do melhor indivíduo), seleção por torneio,
+     * crossover e mutação.
+     * 
+     * @param popSize        Tamanho da população em cada geração.
+     * @param generations    Número total de iterações/gerações a serem processadas.
+     * @param mutationRate   Probabilidade de ocorrência de mutação em cada gene
+     *                       (aresta).
+     * @param tournamentSize Número de indivíduos que participam de cada rodada de
+     *                       seleção por torneio.
+     * @return O cromossomo com o melhor fitness (menor custo) encontrado ao final
+     *         do processo.
+     */
     public Cromossome run(int popSize, int generations, double mutationRate, int tournamentSize) {
 
         List<Cromossome> population = initPopulation(popSize);
@@ -59,6 +81,13 @@ public class GeneticAlgorithm {
                 .orElseThrow();
     }
 
+    /**
+     * Gera um cromossomo aleatório inicial para compor a população.
+     * Seleciona arestas aleatoriamente e remove conexões sucessivamente caso o
+     * custo total de construção ultrapasse o limite do orçamento.
+     * 
+     * @return Um novo cromossomo válido dentro das restrições de orçamento.
+     */
     public Cromossome generateRandomCromossome() {
         Set<Edge> ferrovias = new HashSet<>();
 
@@ -78,7 +107,14 @@ public class GeneticAlgorithm {
         return c;
     }
 
-    List<Cromossome> initPopulation(int size) {
+    /**
+     * Cria a população inicial do algoritmo, gerando indivíduos aleatórios e
+     * calculando seus fitness iniciais.
+     *
+     * @param size Quantidade de indivíduos na população inicial.
+     * @return Uma lista de cromossomos prontos para a primeira geração.
+     */
+    private List<Cromossome> initPopulation(int size) {
         List<Cromossome> pop = new ArrayList<>();
 
         for (int i = 0; i < size; i++) {
@@ -90,7 +126,16 @@ public class GeneticAlgorithm {
         return pop;
     }
 
-    Cromossome tournamentSelection(List<Cromossome> pop, int tournamentSize) {
+    /**
+     * Realiza a seleção de um indivíduo da população através do método de torneio.
+     * Seleciona um grupo aleatório de cromossomos e retorna aquele que possuir o
+     * melhor fitness.
+     * 
+     * @param pop            A população atual.
+     * @param tournamentSize O número de competidores em cada torneio.
+     * @return O cromossomo vencedor do torneio.
+     */
+    private Cromossome tournamentSelection(List<Cromossome> pop, int tournamentSize) {
 
         Cromossome best = null;
 
@@ -105,6 +150,17 @@ public class GeneticAlgorithm {
         return best;
     }
 
+    /**
+     * Realiza a combinação genética (crossover) entre dois pais para gerar um novo
+     * descendente.
+     * Para cada aresta possível, decide aleatoriamente se herdará a característica
+     * (presença ou ausência de ferrovia) do pai 1 ou do pai 2.
+     * 
+     * @param p1 O primeiro cromossomo pai.
+     * @param p2 O segundo cromossomo pai.
+     * @return Um novo cromossomo "filho" contendo uma mistura das características
+     *         dos pais.
+     */
     Cromossome crossover(Cromossome p1, Cromossome p2) {
         Set<Edge> childEdges = new HashSet<>();
 
@@ -124,6 +180,16 @@ public class GeneticAlgorithm {
         return new Cromossome(childEdges);
     }
 
+    /**
+     * Aplica alterações aleatórias em um cromossomo com base na taxa de mutação.
+     * Caso uma mutação resulte em uma violação do orçamento, a alteração é
+     * revertida (rollback)
+     * para garantir a viabilidade do indivíduo.
+     * 
+     * @param c O cromossomo a ser submetido ao processo de mutação.
+     * @param mutationRate A probabilidade de inverter o estado (adicionar/remover)
+     *                     de cada aresta.
+     */
     void mutate(Cromossome c, double mutationRate) {
 
         for (Edge e : allEdges) {

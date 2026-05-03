@@ -17,10 +17,17 @@ public class KruskalController {
 
     private final Kruskal kruskal;
 
+    /**
+     * Endpoint responsável por gerar a Árvore Geradora Mínima (MST) da malha
+     * ferroviária utilizando o algoritmo de Kruskal.
+     * Este método foca em conectar todos os pontos com o menor custo de construção
+     * possível, sem considerar necessariamente as demandas de transporte individuais.
+     * 
+     * @return ResponseEntity contendo um relatório com as rotas que compõem a
+     *         malha mínima e o custo total.
+     */
     @GetMapping
     public ResponseEntity<KruskalResponseDto> gerarMalha() {
-
-        // Executa o algoritmo e pega o relatório com as Strings das rotas
         KruskalResponseDto relatorioFinal = kruskal.executeKruskal();
 
         return ResponseEntity.ok(relatorioFinal);

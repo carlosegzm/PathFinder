@@ -1,10 +1,10 @@
 import type { GeneticResponseApi, KruskalResponseApi } from "../types/api";
 
 export const STATIC_KRUSKAL_RESULT: KruskalResponseApi = {
-  totalDistanceKm: 13943.0,
-  totalConstructionCost: 27886000000.0,
-  availableBudgetForGenetics: 16731600000.0,
-  railwayNetwork: [
+  "totalDistanceKm": 14429.0,
+  "totalConstructionCost": 28858000000.000,
+  "availableBudgetForGenetics": 17314800000.00000,
+  "railwayNetwork": [
     "MT-RO",
     "AL-SE",
     "PR-SP",
@@ -21,7 +21,7 @@ export const STATIC_KRUSKAL_RESULT: KruskalResponseApi = {
     "DF-MG",
     "AL-PE",
     "BA-SE",
-    "MS-PR",
+    "GO-MS",
     "ES-MG",
     "PB-RN",
     "RS-SC",
@@ -30,34 +30,33 @@ export const STATIC_KRUSKAL_RESULT: KruskalResponseApi = {
     "AP-PA",
     "AM-RR",
     "RJ-SP",
-    "AC-RO",
-  ],
-};
+    "AC-RO"
+  ]
+}
 
 export const STATIC_GENETIC_RESULT: GeneticResponseApi = {
-  totalTransportCost: 11010262,
-  constructionCost: 16326000000,
-  budgetLimit: 16731600000,
-  selectedRailways: [
-    "CE-RN",
-    "BA-MG",
-    "CE-PI",
-    "MG-RJ",
-    "PB-RN",
-    "AL-SE",
-    "MS-PR",
-    "MS-MT",
-    "PR-SP",
-    "PR-SC",
-    "AL-PE",
-    "MA-PI",
-    "MG-SP",
-    "PB-PE",
-    "DF-MG",
-    "RS-SC",
-    "BA-SE",
-  ],
-};
+	"totalTransportCost": 1.1022677E7,
+	"constructionCost": 1.7158E10,
+	"budgetLimit": 1.73148E10,
+	"selectedRailways": [
+		"PR-SP",
+		"MG-RJ",
+		"RS-SC",
+		"CE-RN",
+		"DF-GO",
+		"MA-PI",
+		"RJ-SP",
+		"GO-MT",
+		"PB-PE",
+		"BA-PE",
+		"BA-MG",
+		"DF-MG",
+		"PB-RN",
+		"MA-PA",
+		"CE-PI",
+		"PR-SC"
+	]
+}
 
 export const DEFAULT_GENETIC_PARAMS = {
   popSize: 200,

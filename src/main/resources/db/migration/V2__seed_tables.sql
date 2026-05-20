@@ -93,9 +93,9 @@ INSERT INTO path_between_capitals (origin_id, destination_id, distance) VALUES (
 INSERT INTO path_between_capitals (origin_id, destination_id, distance) VALUES ('MT', 'MS',   707), ('MS', 'MT',   707); -- BR-163
 
 -- MS - Campo Grande
-INSERT INTO path_between_capitals (origin_id, destination_id, distance) VALUES ('MS', 'MG',  1356), ('MG', 'MS',  1356); -- BR-262 + BR-040
-INSERT INTO path_between_capitals (origin_id, destination_id, distance) VALUES ('MS', 'SP',   780), ('SP', 'MS',   780); -- BR-262
-INSERT INTO path_between_capitals (origin_id, destination_id, distance) VALUES ('MS', 'PR',   362), ('PR', 'MS',   362); -- BR-163 + BR-277
+INSERT INTO path_between_capitals (origin_id, destination_id, distance) VALUES ('MS', 'MG',  1262), ('MG', 'MS',  1262); -- BR-262 + BR-040
+INSERT INTO path_between_capitals (origin_id, destination_id, distance) VALUES ('MS', 'SP',   987), ('SP', 'MS',   987); -- BR-262
+INSERT INTO path_between_capitals (origin_id, destination_id, distance) VALUES ('MS', 'PR',   979), ('PR', 'MS',   979); -- BR-163 + BR-277
 
 -- MG - Belo Horizonte
 INSERT INTO path_between_capitals (origin_id, destination_id, distance) VALUES ('MG', 'RJ',   441), ('RJ', 'MG',   441); -- BR-040
@@ -110,7 +110,7 @@ INSERT INTO path_between_capitals (origin_id, destination_id, distance) VALUES (
 INSERT INTO path_between_capitals (origin_id, destination_id, distance) VALUES ('PB', 'PE',   116), ('PE', 'PB',   116); -- BR-101
 
 -- PR - Curitiba
-INSERT INTO path_between_capitals (origin_id, destination_id, distance) VALUES ('PR', 'SP',   416), ('SP', 'PR',   416); -- BR-116 Régis Bittencourt
+INSERT INTO path_between_capitals (origin_id, destination_id, distance) VALUES ('PR', 'SP',   424), ('SP', 'PR',   424); -- BR-116 Régis Bittencourt
 INSERT INTO path_between_capitals (origin_id, destination_id, distance) VALUES ('PR', 'SC',   307), ('SC', 'PR',   307); -- BR-101
 
 -- PE - Recife
